@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Buyer Registration | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .form-container {
             max-width: 400px;
@@ -62,23 +63,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <form method="POST" action="">
                 <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" name="name" required>
+                    <div style="position: relative;">
+                         <i class="ph ph-user" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="name" required style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" name="email" required>
+                    <div style="position: relative;">
+                         <i class="ph ph-envelope" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="email" name="email" required style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
-                    <input type="text" name="phone" required placeholder="07x xxxxxxx">
+                     <div style="position: relative;">
+                         <i class="ph ph-phone" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="phone" required placeholder="07x xxxxxxx" style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Location</label>
-                    <input type="text" name="location" required placeholder="City/Town">
+                     <div style="position: relative;">
+                         <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="location" required placeholder="City/Town" style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required>
+                     <div style="position: relative;">
+                         <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="password" name="password" required style="padding-left: 35px;">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
             </form>

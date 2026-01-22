@@ -9,6 +9,7 @@ require_once 'db.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoChek | Vehicle Inspection Marketplace</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         /* Homepage Specific Enhancements */
@@ -73,6 +74,7 @@ require_once 'db.php';
             margin: 0 auto 24px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.05);
             border: 1px solid #f1f5f9;
+            color: var(--primary);
         }
         .step-card h3 { font-size: 1.25rem; margin-bottom: 12px; font-weight: 700; }
         .step-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
@@ -107,7 +109,7 @@ require_once 'db.php';
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
             color: #94a3b8;
         }
         .verified-badge {
@@ -154,7 +156,7 @@ require_once 'db.php';
             gap: 20px; transition: all 0.3s ease;
         }
         .benefit-card:hover { border-color: var(--primary); background: var(--bg-light); }
-        .benefit-icon { font-size: 2.5rem; }
+        .benefit-icon { font-size: 2.5rem; color: var(--primary); }
         .benefit-card h4 { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
         .benefit-card p { color: var(--text-muted); font-size: 1rem; line-height: 1.6; }
 
@@ -164,6 +166,35 @@ require_once 'db.php';
         footer p { opacity: 0.6; font-size: 1rem; line-height: 1.6; }
         .footer-link { color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
         .footer-link:hover { color: var(--primary); }
+
+        /* Mobile Specific Overrides */
+        @media (max-width: 768px) {
+            .hero h2 { font-size: 2.5rem; }
+            .hero { padding: 80px 0 50px; }
+            
+            .step-container, .benefit-grid, .expert-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .review-card {
+                min-width: 85vw; /* Make reviews nearly full width of screen */
+                scroll-snap-align: center;
+                padding: 20px;
+            }
+            .review-carousel {
+                scroll-snap-type: x mandatory;
+                padding: 20px 0;
+            }
+
+            footer .container > div {
+                grid-template-columns: 1fr !important; /* Stack footer columns */
+                gap: 40px;
+            }
+            
+            footer { text-align: center; }
+            footer .logo p { margin: 20px auto 0; }
+        }
     </style>
 </head>
 <body>
@@ -199,23 +230,27 @@ require_once 'db.php';
                         <?php if(!empty($exp['profile_photo'])): ?>
                             <img src="uploads/profiles/<?php echo $exp['profile_photo']; ?>" style="width:100%; height:100%; object-fit:cover;">
                         <?php else: ?>
-                            <?php echo strtoupper(substr($exp['name'], 0, 1)); ?>
+                            <i class="ph ph-user-circle"></i>
                         <?php endif; ?>
                     </div>
                     <?php if($exp['verified']): ?>
-                        <div class="verified-badge" title="Verified Expert">✓</div>
+                        <div class="verified-badge" title="Verified Expert"><i class="ph-bold ph-check"></i></div>
                     <?php endif; ?>
                 </div>
                 <h3><?php echo htmlspecialchars($exp['name']); ?></h3>
                 <div class="expert-rating">
-                    <span>★ ★ ★ ★ ★</span>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
                     <span style="color: var(--text-muted); font-size: 0.8rem;">(5.0)</span>
                 </div>
                 <div class="expert-meta-small" style="font-weight: 600; color: var(--primary); margin-bottom: 4px;">
                     <?php echo $exp['experience']; ?> Years Experience
                 </div>
                 <div class="expert-location">
-                    📍 <?php echo htmlspecialchars($exp['district']); ?>
+                    <i class="ph-fill ph-map-pin"></i> <?php echo htmlspecialchars($exp['district']); ?>
                 </div>
                 <a href="expert_profile.php?id=<?php echo $exp['expert_id']; ?>" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 12px;">View Profile</a>
             </div>
@@ -223,7 +258,7 @@ require_once 'db.php';
         </div>
         <div style="text-align: center; margin-top: 40px;">
             <a href="experts.php" style="color: var(--primary); font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                View all experts <span>→</span>
+                View all experts <i class="ph-bold ph-arrow-right"></i>
             </a>
         </div>
     </section>
@@ -236,22 +271,22 @@ require_once 'db.php';
             </div>
             <div class="step-container">
                 <div class="step-card">
-                    <div class="step-icon">🔍</div>
+                    <div class="step-icon"><i class="ph ph-magnifying-glass"></i></div>
                     <h3>Search for Experts</h3>
                     <p>Browse through our verified professionals and find the perfect match for your vehicle type.</p>
                 </div>
                 <div class="step-card">
-                    <div class="step-icon">📅</div>
+                    <div class="step-icon"><i class="ph ph-calendar-check"></i></div>
                     <h3>Book Instantly</h3>
                     <p>Select your location and preferred time. Your expert will confirm and reach out to you.</p>
                 </div>
                 <div class="step-card">
-                    <div class="step-icon">📄</div>
+                    <div class="step-icon"><i class="ph ph-file-text"></i></div>
                     <h3>Technical Report</h3>
                     <p>Receive a comprehensive digital inspection report covering over 100+ critical check points.</p>
                 </div>
                 <div class="step-card">
-                    <div class="step-icon">⭐</div>
+                    <div class="step-icon"><i class="ph ph-star"></i></div>
                     <h3>Leave a Review</h3>
                     <p>Help our community by rating your expert and sharing your inspection experience.</p>
                 </div>
@@ -276,17 +311,17 @@ require_once 'db.php';
                     while($rev = $reviews->fetch_assoc()):
                 ?>
                     <div class="review-card">
-                        <div style="color: #f59e0b; margin-bottom:20px; font-size: 1.2rem;">
-                            <?php for($i=0; $i<$rev['rating']; $i++) echo "★"; ?>
-                            <?php for($i=0; $i<(5-$rev['rating']); $i++) echo "☆"; ?>
+                        <div style="color: #f59e0b; margin-bottom:20px; font-size: 1.2rem; display: flex; gap: 2px;">
+                            <?php for($i=0; $i<$rev['rating']; $i++) echo '<i class="ph-fill ph-star"></i>'; ?>
+                            <?php for($i=0; $i<(5-$rev['rating']); $i++) echo '<i class="ph ph-star"></i>'; ?>
                         </div>
                         <p class="review-comment">"<?php echo htmlspecialchars($rev['comment']); ?>"</p>
                         <div style="display:flex; align-items:center; gap:16px;">
-                            <div style="width:50px; height:50px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; overflow:hidden; border: 2px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                            <div style="width:50px; height:50px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; overflow:hidden; border: 2px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.05); font-size: 1.5rem; color: #94a3b8;">
                                 <?php if(!empty($rev['buyer_photo'])): ?>
                                     <img src="uploads/profiles/<?php echo $rev['buyer_photo']; ?>" style="width:100%; height:100%; object-fit:cover;">
                                 <?php else: ?>
-                                    👤
+                                    <i class="ph ph-user-circle"></i>
                                 <?php endif; ?>
                             </div>
                             <div>
@@ -313,17 +348,17 @@ require_once 'db.php';
             </div>
             <div class="benefit-grid">
                 <div class="benefit-card">
-                    <div class="benefit-icon">🛡️</div>
+                    <div class="benefit-icon"><i class="ph ph-shield-check"></i></div>
                     <h4>Verified Experts Only</h4>
                     <p>Every inspector on our platform is personally vetted and verified to ensure professional standard service.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon">📊</div>
+                    <div class="benefit-icon"><i class="ph ph-chart-bar"></i></div>
                     <h4>Comprehensive Reports</h4>
                     <p>Get detailed PDF reports including engine health, body condition, and digital photos of every checklist item.</p>
                 </div>
                 <div class="benefit-card">
-                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-icon"><i class="ph ph-lightning"></i></div>
                     <h4>Real-time Booking</h4>
                     <p>Schedule inspections instantly with live availability tracking. Get your results usually within hours of completion.</p>
                 </div>
@@ -350,7 +385,7 @@ require_once 'db.php';
                     <h4 style="color: white; margin-bottom: 24px;">Support</h4>
                     <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
                         <p style="font-size: 0.85rem; margin-bottom: 12px; opacity: 1;">Direct Assistance:</p>
-                        <a href="tel:+94771234567" style="color: var(--primary); font-weight: 700; font-size: 1.1rem; text-decoration: none; display: block;">📞 +94 77 123 4567</a>
+                        <a href="tel:+94771234567" style="color: var(--primary); font-weight: 700; font-size: 1.1rem; text-decoration: none; display: flex; align-items: center; gap: 8px;"><i class="ph ph-phone"></i> +94 77 123 4567</a>
                     </div>
                 </div>
             </div>

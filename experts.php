@@ -15,6 +15,7 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
     <title>Find an Expert | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .expert-card { 
             background: white; 
@@ -273,7 +274,7 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                         <?php if (!empty($row['profile_photo'])): ?>
                             <img src="uploads/profiles/<?php echo $row['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                         <?php else: ?>
-                            <?php echo strtoupper(substr($row['name'], 0, 1)); ?>
+                            <i class="ph ph-user-circle"></i>
                         <?php endif; ?>
                     </div>
                     <div class="expert-info" style="flex: 1;">
@@ -296,8 +297,8 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                                 Exp: <?php echo $row['experience']; ?> Yrs
                             </div>
                         </div>
-                        <div class="expert-meta" style="margin-top: 5px;">📍 Service Areas: <?php echo htmlspecialchars($row['district']); ?></div>
-                        <div style="font-size: 0.9rem; margin-top: 8px; color: #475569;">🎓 <?php echo htmlspecialchars($row['qualification']); ?></div>
+                        <div class="expert-meta" style="margin-top: 5px;"><i class="ph-fill ph-map-pin"></i> Service Areas: <?php echo htmlspecialchars($row['district']); ?></div>
+                        <div style="font-size: 0.9rem; margin-top: 8px; color: #475569;"><i class="ph ph-graduation-cap"></i> <?php echo htmlspecialchars($row['qualification']); ?></div>
                     </div>
                 </div>
                 
@@ -311,13 +312,13 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                     <div class="social-links" style="display: flex; gap: 15px;">
                         <?php if (!empty($row['linkedin_url'])): ?>
                             <a href="<?php echo $row['linkedin_url']; ?>" target="_blank" style="color: #0077b5; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; text-decoration: none;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg> 
+                                <i class="ph ph-linkedin-logo" style="font-size: 1.2em;"></i>
                                 LinkedIn
                             </a>
                         <?php endif; ?>
                         <?php if (!empty($row['website_url'])): ?>
                             <a href="<?php echo $row['website_url']; ?>" target="_blank" style="color: #64748b; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; text-decoration: none;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                <i class="ph ph-globe" style="font-size: 1.2em;"></i>
                                 Website
                             </a>
                         <?php endif; ?>
@@ -335,7 +336,7 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                 ?>
                 <div style="margin-bottom: 40px;">
                     <h3 style="color: #166534; font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #dcfce7;">
-                        📍 Nearby Experts (Within 15km)
+                        <i class="ph-fill ph-map-pin"></i> Nearby Experts (Within 15km)
                     </h3>
                     <?php
                     foreach ($nearby_experts as $expert) {
@@ -351,7 +352,7 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                 ?>
                 <div style="margin-bottom: 40px;">
                     <h3 style="color: #c2410c; font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #fff7ed;">
-                        🏘️ Other District Experts
+                        <i class="ph ph-buildings"></i> Other District Experts
                     </h3>
                     <?php
                     foreach ($district_experts as $expert) {

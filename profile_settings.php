@@ -228,6 +228,7 @@ if ($role == 'buyer') {
     <title>Profile Settings | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
@@ -284,7 +285,7 @@ if ($role == 'buyer') {
                         <?php if (!empty($user['profile_photo'])): ?>
                             <img src="uploads/profiles/<?php echo $user['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                         <?php else: ?>
-                            <span style="font-size: 2.5rem; color: #94a3b8;"><?php echo strtoupper(substr($user['name'], 0, 1)); ?></span>
+                            <i class="ph ph-user" style="font-size: 3rem; color: #94a3b8;"></i>
                         <?php endif; ?>
                     </div>
                     <div>
@@ -295,12 +296,18 @@ if ($role == 'buyer') {
 
                 <div class="form-group">
                     <label>Your Name</label>
-                    <input type="text" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required>
+                    <div style="position: relative;">
+                        <i class="ph ph-user" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required style="padding-left: 35px;">
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Phone Number</label>
-                    <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                    <div style="position: relative;">
+                        <i class="ph ph-phone" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" style="padding-left: 35px;">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -311,7 +318,10 @@ if ($role == 'buyer') {
                 <?php if ($role == 'buyer'): ?>
                     <div class="form-group">
                         <label>Location</label>
-                        <input type="text" name="location" value="<?php echo htmlspecialchars($user['location'] ?? ''); ?>">
+                        <div style="position: relative;">
+                            <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                            <input type="text" name="location" value="<?php echo htmlspecialchars($user['location'] ?? ''); ?>" style="padding-left: 35px;">
+                        </div>
                     </div>
 
                     <hr style="margin: 40px 0; border: none; border-top: 2px solid #f1f5f9;">
@@ -331,16 +341,25 @@ if ($role == 'buyer') {
                     <h3>🔒 Password Security</h3>
                     <div class="form-group">
                         <label>Current Password</label>
-                        <input type="password" name="current_password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                        <div style="position: relative;">
+                            <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                            <input type="password" name="current_password" placeholder="••••••••" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                        </div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                         <div class="form-group">
                             <label>New Password</label>
-                            <input type="password" name="new_password" placeholder="New Password" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                            <div style="position: relative;">
+                                <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                <input type="password" name="new_password" placeholder="New Password" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Confirm New Password</label>
-                            <input type="password" name="confirm_password" placeholder="Confirm Password" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                            <div style="position: relative;">
+                                <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                <input type="password" name="confirm_password" placeholder="Confirm Password" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                            </div>
                         </div>
                     </div>
 
@@ -373,6 +392,7 @@ if ($role == 'buyer') {
                         <small style="color: #64748b; margin-bottom: 5px; display: block;">Search and add vehicles you inspect (Category, Brand, or Model).</small>
                         <div style="position: relative;">
                              <div class="tag-container" id="tagContainer">
+                                 <i class="ph ph-magnifying-glass" style="color: #94a3b8; margin: 0 5px;"></i>
                                  <input type="text" class="tag-input" id="specSearch" placeholder="Type to search (e.g. 'Toyota', 'Bike')..." autocomplete="off">
                              </div>
                              <div class="suggestions-list" id="suggestions"></div>
@@ -396,7 +416,8 @@ if ($role == 'buyer') {
                         
                         <!-- Text Input with Autocomplete -->
                         <div style="position: relative;">
-                            <input type="text" name="district" id="district-input" value="<?php echo htmlspecialchars($user['district'] ?? ''); ?>" required placeholder="e.g. Badulla" style="margin-bottom: 10px;" autocomplete="off">
+                            <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                            <input type="text" name="district" id="district-input" value="<?php echo htmlspecialchars($user['district'] ?? ''); ?>" required placeholder="e.g. Badulla" style="margin-bottom: 10px; padding-left: 35px;" autocomplete="off">
                             <div id="location-suggestions"></div>
                         </div>
 
@@ -424,17 +445,26 @@ if ($role == 'buyer') {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
                             <label>LinkedIn Profile URL</label>
-                            <input type="url" name="linkedin_url" value="<?php echo htmlspecialchars($user['linkedin_url'] ?? ''); ?>" placeholder="https://linkedin.com/in/yourprofile">
+                            <div style="position: relative;">
+                                <i class="ph ph-linkedin-logo" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                <input type="url" name="linkedin_url" value="<?php echo htmlspecialchars($user['linkedin_url'] ?? ''); ?>" placeholder="https://linkedin.com/in/yourprofile" style="padding-left: 35px;">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Professional Website URL</label>
-                            <input type="url" name="website_url" value="<?php echo htmlspecialchars($user['website_url'] ?? ''); ?>" placeholder="https://yourwebsite.com">
+                            <div style="position: relative;">
+                                <i class="ph ph-globe" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                <input type="url" name="website_url" value="<?php echo htmlspecialchars($user['website_url'] ?? ''); ?>" placeholder="https://yourwebsite.com" style="padding-left: 35px;">
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Experience (Years)</label>
-                        <input type="number" name="experience" value="<?php echo htmlspecialchars($user['experience'] ?? 0); ?>" required>
+                        <div style="position: relative;">
+                            <i class="ph ph-briefcase" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                            <input type="number" name="experience" value="<?php echo htmlspecialchars($user['experience'] ?? 0); ?>" required style="padding-left: 35px;">
+                        </div>
                     </div>
                 <?php endif; ?>
 

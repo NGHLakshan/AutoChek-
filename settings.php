@@ -141,6 +141,7 @@ if ($role == 'expert') {
     <title>Settings | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
         .settings-layout { display: grid; grid-template-columns: 240px 1fr; gap: 40px; margin-top: 30px; }
@@ -176,7 +177,7 @@ if ($role == 'expert') {
         <div class="settings-layout">
             
             <aside class="settings-nav">
-                <div class="nav-item active">⚙️ <?php 
+                <div class="nav-item active"><i class="ph-fill ph-gear"></i> <?php 
                     if ($role == 'admin') echo 'Admin Settings';
                     elseif ($role == 'expert') echo 'Expert Settings';
                     else echo 'Account Settings';
@@ -190,18 +191,18 @@ if ($role == 'expert') {
                     
                     // For buyer: show name, phone, location
                     if ($role == 'buyer') {
-                        $highlights[] = ['field' => 'name', 'icon' => '👤', 'label' => 'Name', 'val' => $user['name']];
-                        $highlights[] = ['field' => 'phone', 'icon' => '📞', 'label' => 'Phone', 'val' => $user['phone']];
-                        $highlights[] = ['field' => 'location', 'icon' => '📍', 'label' => 'Location', 'val' => $user['location'] ?? ''];
+                        $highlights[] = ['field' => 'name', 'icon' => '<i class="ph ph-user"></i>', 'label' => 'Name', 'val' => $user['name']];
+                        $highlights[] = ['field' => 'phone', 'icon' => '<i class="ph ph-phone"></i>', 'label' => 'Phone', 'val' => $user['phone']];
+                        $highlights[] = ['field' => 'location', 'icon' => '<i class="ph ph-map-pin"></i>', 'label' => 'Location', 'val' => $user['location'] ?? ''];
                     }
                     // For expert: show all fields
                     else {
-                        $highlights[] = ['field' => 'name', 'icon' => '👤', 'label' => 'Name', 'val' => $user['name']];
-                        $highlights[] = ['field' => 'phone', 'icon' => '📞', 'label' => 'Phone', 'val' => $user['phone']];
-                        $highlights[] = ['field' => 'bio', 'icon' => '📝', 'label' => 'Bio', 'val' => $user['bio']];
-                        $highlights[] = ['field' => 'district', 'icon' => '🏙️', 'label' => 'District', 'val' => $user['district'] ?? ''];
-                        $highlights[] = ['field' => 'linkedin_url', 'icon' => '🔗', 'label' => 'LinkedIn', 'val' => $user['linkedin_url'] ?? ''];
-                        $highlights[] = ['field' => 'website_url', 'icon' => '🌐', 'label' => 'Website', 'val' => $user['website_url'] ?? ''];
+                        $highlights[] = ['field' => 'name', 'icon' => '<i class="ph ph-user"></i>', 'label' => 'Name', 'val' => $user['name']];
+                        $highlights[] = ['field' => 'phone', 'icon' => '<i class="ph ph-phone"></i>', 'label' => 'Phone', 'val' => $user['phone']];
+                        $highlights[] = ['field' => 'bio', 'icon' => '<i class="ph ph-notepad"></i>', 'label' => 'Bio', 'val' => $user['bio']];
+                        $highlights[] = ['field' => 'district', 'icon' => '<i class="ph ph-buildings"></i>', 'label' => 'District', 'val' => $user['district'] ?? ''];
+                        $highlights[] = ['field' => 'linkedin_url', 'icon' => '<i class="ph ph-linkedin-logo"></i>', 'label' => 'LinkedIn', 'val' => $user['linkedin_url'] ?? ''];
+                        $highlights[] = ['field' => 'website_url', 'icon' => '<i class="ph ph-globe"></i>', 'label' => 'Website', 'val' => $user['website_url'] ?? ''];
                     }
                     
                     
@@ -232,7 +233,7 @@ if ($role == 'expert') {
                         <input type="hidden" name="action" value="update_account">
                         
                         <?php if ($role == 'expert'): ?>
-                            <div class="section-header">🏝️ Availability Status</div>
+                            <div class="section-header"><i class="ph ph-coffee"></i> Availability Status</div>
                             <div class="form-group" style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
                                 <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 700; color: #1e293b; margin-bottom: 0;">
                                     <input type="checkbox" name="is_available" value="1" <?php if($user['is_available']) echo 'checked'; ?> style="width: 20px; height: 20px;">
@@ -242,19 +243,28 @@ if ($role == 'expert') {
                             </div>
                         <?php endif; ?>
 
-                        <div class="section-header">🔒 Password Reset</div>
+                        <div class="section-header"><i class="ph ph-lock-key"></i> Password Reset</div>
                         <div class="form-group">
                             <label>Current Password</label>
-                            <input type="password" name="current_password" placeholder="••••••••">
+                            <div style="position: relative;">
+                                 <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                <input type="password" name="current_password" placeholder="••••••••" style="padding-left: 35px;">
+                            </div>
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                             <div class="form-group">
                                 <label>New Password</label>
-                                <input type="password" name="new_password" placeholder="New Password">
+                                <div style="position: relative;">
+                                     <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                    <input type="password" name="new_password" placeholder="New Password" style="padding-left: 35px;">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Confirm New Password</label>
-                                <input type="password" name="confirm_password" placeholder="Confirm Password">
+                                 <div style="position: relative;">
+                                     <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="padding-left: 35px;">
+                                </div>
                             </div>
                         </div>
 
@@ -264,7 +274,7 @@ if ($role == 'expert') {
                     </form>
 
                     <div style="margin-top: 60px; padding: 25px; border: 1px solid #fee2e2; border-radius: 12px; background: #fffafb;">
-                        <h4 style="color: #991b1b; margin-top:0; display: flex; align-items: center; gap: 10px;">⚠️ Danger Zone</h4>
+                        <h4 style="color: #991b1b; margin-top:0; display: flex; align-items: center; gap: 10px;"><i class="ph-fill ph-warning"></i> Danger Zone</h4>
                         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">Deleting your account is permanent and cannot be undone. All your data will be wiped.</p>
                         <form method="POST" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete your account?')">
                             <input type="hidden" name="action" value="delete_account">

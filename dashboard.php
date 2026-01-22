@@ -26,6 +26,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
     <title>Dashboard | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; border: 1px solid #f1f5f9; }
         .request-item:hover { background-color: #f8fafc; transition: background 0.2s; }
@@ -159,27 +160,27 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                     <?php if (!empty($expert['profile_photo'])): ?>
                         <img src="uploads/profiles/<?php echo $expert['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                     <?php else: ?>
-                        <?php echo strtoupper(substr($expert['name'], 0, 1)); ?>
+                        <i class="ph ph-user-circle"></i>
                     <?php endif; ?>
                 </div>
                 <div>
                     <h2 style="margin: 0;">Welcome Back, <?php echo htmlspecialchars($expert['name']); ?>!</h2>
-                    <p style="margin: 5px 0; color: #64748b;">
-                        <?php echo $expert['verified'] ? '✅ Verified Expert' : '⏳ Waiting for Verification'; ?> 
+                    <p style="margin: 5px 0; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                        <?php echo $expert['verified'] ? '<i class="ph-fill ph-seal-check" style="color: #16a34a; font-size: 1.1rem;"></i> Verified Expert' : '<i class="ph ph-hourglass" style="color: #ca8a04;"></i> Waiting for Verification'; ?> 
                         • <?php echo $expert['experience']; ?> Years Experience
                     </p>
                     
                     <div style="display: flex; gap: 15px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
                         <?php if (!empty($expert['linkedin_url'])): ?>
                             <a href="<?php echo htmlspecialchars($expert['linkedin_url']); ?>" target="_blank" style="color: #0077b5; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg> 
+                                <i class="ph ph-linkedin-logo"></i>
                                 LinkedIn
                             </a>
                         <?php endif; ?>
 
                         <?php if (!empty($expert['website_url'])): ?>
                             <a href="<?php echo htmlspecialchars($expert['website_url']); ?>" target="_blank" style="color: #64748b; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                <i class="ph ph-globe"></i>
                                 Website
                             </a>
                         <?php endif; ?>
@@ -198,18 +199,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
             if (isset($_GET['msg'])) {
                 if ($_GET['msg'] == 'report_created') {
                     echo '<div style="background: #dcfce7; border-left: 4px solid #22c55e; padding: 20px; border-radius: 8px; margin-bottom: 20px;">';
-                    echo '<h3 style="margin: 0 0 10px 0; color: #15803d;">✅ Inspection Report Submitted Successfully!</h3>';
+                    echo '<h3 style="margin: 0 0 10px 0; color: #15803d; display: flex; align-items: center; gap: 8px;"><i class="ph-fill ph-check-circle"></i> Inspection Report Submitted Successfully!</h3>';
                     echo '<p style="margin: 0; color: #166534;">Your inspection report has been saved and the booking is now marked as completed. The buyer can now view the report and proceed with payment.</p>';
                     echo '</div>';
                 } elseif ($_GET['msg'] == 'cancelled') {
                     echo '<div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 20px;">';
-                    echo '<h3 style="margin: 0 0 10px 0; color: #991b1b;">🚫 Booking Cancelled</h3>';
+                    echo '<h3 style="margin: 0 0 10px 0; color: #991b1b; display: flex; align-items: center; gap: 8px;"><i class="ph-fill ph-x-circle"></i> Booking Cancelled</h3>';
                     echo '<p style="margin: 0; color: #7f1d1d;">The booking has been successfully cancelled.</p>';
                     echo '</div>';
                 } elseif ($_GET['msg'] == 'reply_saved') {
-                    echo '<div class="alert-success">✅ Your reply has been posted successfully.</div>';
+                    echo '<div class="alert-success"><i class="ph-fill ph-check-circle"></i> Your reply has been posted successfully.</div>';
                 } elseif ($_GET['msg'] == 'empty_reply') {
-                    echo '<div class="alert-error">⚠️ Please enter a reply before saving.</div>';
+                    echo '<div class="alert-error"><i class="ph-fill ph-warning-circle"></i> Please enter a reply before saving.</div>';
                 }
             }
             ?>
@@ -223,15 +224,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                     <h3 class="section-title">Quick Status</h3>
                     <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 30px;">
                         <div class="card stat-card">
-                            <span class="label">Pending Requests</span>
+                            <span class="label"><i class="ph ph-hourglass"></i> Pending Requests</span>
                             <span class="value"><?php echo $stats_pending; ?></span>
                         </div>
                         <div class="card stat-card">
-                            <span class="label">Upcoming Inspections</span>
+                            <span class="label"><i class="ph ph-calendar-check"></i> Upcoming Inspections</span>
                             <span class="value"><?php echo $stats_upcoming; ?></span>
                         </div>
                         <div class="card stat-card">
-                            <span class="label">Total Completed</span>
+                            <span class="label"><i class="ph ph-check-square-offset"></i> Total Completed</span>
                             <span class="value"><?php echo $stats_completed; ?></span>
                         </div>
                     </div>
@@ -257,21 +258,21 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                             <?php if (!empty($row['buyer_photo'])): ?>
                                                 <img src="uploads/profiles/<?php echo $row['buyer_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                                             <?php else: ?>
-                                                👤
+                                                <i class="ph ph-user"></i>
                                             <?php endif; ?>
                                         </div>
                                         <div class="info-text">
                                             <h4><?php echo htmlspecialchars($row['buyer_name']); ?></h4>
                                             <p><strong><?php echo htmlspecialchars($row['vehicle_type']); ?></strong> • <?php echo date('M j, Y', strtotime($row['booking_date'])); ?></p>
                                             <p style="font-size: 0.85rem; color: #475569; margin: 4px 0;">
-                                                📦 <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> (LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?>) • 
-                                                🌐 <?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?>
+                                                <i class="ph ph-package"></i> <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> (LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?>) • 
+                                                <i class="ph ph-globe"></i> <?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?>
                                             </p>
-                                            <p style="font-size: 0.75rem; color: #94a3b8;">📍 <?php echo htmlspecialchars($row['location']); ?> • 📞 <?php echo htmlspecialchars($row['buyer_phone']); ?></p>
+                                            <p style="font-size: 0.75rem; color: #94a3b8;"><i class="ph ph-map-pin"></i> <?php echo htmlspecialchars($row['location']); ?> • <i class="ph ph-phone"></i> <?php echo htmlspecialchars($row['buyer_phone']); ?></p>
                                         </div>
                                     </div>
                                     <div class="actions" style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                        <a href="messages.php?chat_role=buyer&chat_id=<?php echo $row['buyer_id']; ?>" class="btn btn-outline btn-sm">💬</a>
+                                        <a href="messages.php?chat_role=buyer&chat_id=<?php echo $row['buyer_id']; ?>" class="btn btn-outline btn-sm"><i class="ph ph-chat-circle-text"></i></a>
                                         <a href="update_booking.php?id=<?php echo $row['booking_id']; ?>&status=approved" class="btn btn-primary btn-sm">Accept</a>
                                         <a href="update_booking.php?id=<?php echo $row['booking_id']; ?>&status=rejected" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fee2e2;">Reject</a>
                                     </div>
@@ -305,17 +306,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                             <?php if (!empty($row['buyer_photo'])): ?>
                                                 <img src="uploads/profiles/<?php echo $row['buyer_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                                             <?php else: ?>
-                                                📅
+                                                <i class="ph ph-calendar-blank" style="color: #166534;"></i>
                                             <?php endif; ?>
                                         </div>
                                         <div class="info-text">
                                             <h4>#<?php echo $row['booking_id']; ?> - <?php echo htmlspecialchars($row['buyer_name']); ?></h4>
                                             <p><strong><?php echo htmlspecialchars($row['vehicle_type']); ?></strong> • <?php echo date('M j, Y', strtotime($row['booking_date'])); ?></p>
                                             <p style="font-size: 0.85rem; color: #475569; margin: 4px 0;">
-                                                📦 <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> (LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?>) • 
-                                                🌐 <?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?>
+                                                <i class="ph ph-package"></i> <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> (LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?>) • 
+                                                <i class="ph ph-globe"></i> <?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?>
                                             </p>
-                                            <p style="font-size: 0.75rem; color: #64748b;">📞 <?php echo htmlspecialchars($row['phone']); ?> • 📍 <?php echo htmlspecialchars($row['location']); ?></p>
+                                            <p style="font-size: 0.75rem; color: #64748b;"><i class="ph ph-phone"></i> <?php echo htmlspecialchars($row['phone']); ?> • <i class="ph ph-map-pin"></i> <?php echo htmlspecialchars($row['location']); ?></p>
                                             <p style="font-size: 0.75rem;">
                                                 <?php 
                                                 if ($row['status'] == 'approved') echo '<span class="status-badge status-approved">Approved</span>';
@@ -345,7 +346,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
 
                     <!-- Completed Inspections (Collapsible) -->
                     <h3 class="section-title" style="margin-top: 30px; cursor: pointer; user-select: none;" onclick="toggleCompleted()">
-                        📋 Completed Inspections <span id="toggleIcon" style="float: right;">▼</span>
+                        <i class="ph ph-clipboard-text"></i> Completed Inspections <span id="toggleIcon" style="float: right;"><i class="ph ph-caret-down"></i></span>
                     </h3>
                     <div class="card" id="completedSection" style="display: none;">
                         <?php
@@ -362,12 +363,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 ?>
                                 <div class="request-item">
                                     <div class="user-info">
-                                        <div class="avatar" style="background:#dcfce7; color:#166534;">✅</div>
+                                        <div class="avatar" style="background:#dcfce7; color:#166534; display: flex; align-items: center; justify-content: center;"><i class="ph-fill ph-check-circle"></i></div>
                                         <div class="info-text">
                                             <h4><?php echo htmlspecialchars($row['buyer_name']); ?></h4>
                                             <p><?php echo htmlspecialchars($row['vehicle_type']); ?> • <?php echo $row['booking_date']; ?></p>
                                             <p style="font-size: 0.85rem; color: #475569; margin: 4px 0;">
-                                                📦 <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> • 🌐 <?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?>
+                                                <i class="ph ph-package"></i> <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> • <i class="ph ph-globe"></i> <?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?>
                                             </p>
                                             <p style="font-size: 0.75rem;"><span class="status-badge status-completed">Completed</span></p>
                                         </div>
@@ -388,7 +389,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                     
                     <!-- Cancelled Bookings (Collapsible) -->
                     <h3 class="section-title" style="margin-top: 30px; cursor: pointer; user-select: none;" onclick="toggleCancelled()">
-                        🚫 Cancelled Bookings <span id="cancelledToggleIcon" style="float: right;">▼</span>
+                        <i class="ph ph-prohibit"></i> Cancelled Bookings <span id="cancelledToggleIcon" style="float: right;"><i class="ph ph-caret-down"></i></span>
                     </h3>
                     <div class="card" id="cancelledSection" style="display: none;">
                         <?php
@@ -404,7 +405,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 ?>
                                 <div class="request-item" style="border-left: 4px solid #ef4444;">
                                     <div class="user-info">
-                                        <div class="avatar" style="background:#fee2e2; color:#991b1b;">🚫</div>
+                                        <div class="avatar" style="background:#fee2e2; color:#991b1b; display: flex; align-items: center; justify-content: center;"><i class="ph-fill ph-x-circle"></i></div>
                                         <div class="info-text">
                                             <h4><?php echo htmlspecialchars($row['buyer_name']); ?></h4>
                                             <p><?php echo htmlspecialchars($row['vehicle_type']); ?> • <?php echo $row['booking_date']; ?></p>
@@ -430,10 +431,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                         var icon = document.getElementById('toggleIcon');
                         if (section.style.display === 'none') {
                             section.style.display = 'block';
-                            icon.textContent = '▲';
+                            icon.innerHTML = '<i class="ph ph-caret-up"></i>';
                         } else {
                             section.style.display = 'none';
-                            icon.textContent = '▼';
+                            icon.innerHTML = '<i class="ph ph-caret-down"></i>';
                         }
                     }
                     function toggleCancelled() {
@@ -441,10 +442,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                         var icon = document.getElementById('cancelledToggleIcon');
                         if (section.style.display === 'none') {
                             section.style.display = 'block';
-                            icon.textContent = '▲';
+                            icon.innerHTML = '<i class="ph ph-caret-up"></i>';
                         } else {
                             section.style.display = 'none';
-                            icon.textContent = '▼';
+                            icon.innerHTML = '<i class="ph ph-caret-down"></i>';
                         }
                     }
                     </script>
@@ -454,16 +455,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 <div class="right-col">
                     <h3 class="section-title">Shortcuts</h3>
                     <div class="shortcut-grid">
-                        <a href="expert_profile.php?id=<?php echo $user_id; ?>" class="shortcut-btn">View Profile</a>
+                        <a href="expert_profile.php?id=<?php echo $user_id; ?>" class="shortcut-btn"><i class="ph ph-user"></i> View Profile</a>
                         
                         <!-- Toggle Availability -->
                         <a href="dashboard.php?action=toggle_availability" class="shortcut-btn" 
                            style="<?php echo $expert['is_available'] ? 'background: #dcfce7; color: #15803d;' : 'background: #f1f5f9; color: #64748b;'; ?>">
-                           <?php echo $expert['is_available'] ? 'Availability: ON' : 'Availability: OFF'; ?>
+                           <?php echo $expert['is_available'] ? '<i class="ph-fill ph-toggle-right"></i> Availability: ON' : '<i class="ph ph-toggle-left"></i> Availability: OFF'; ?>
                         </a>
 
-                        <a href="earnings.php" class="shortcut-btn">View Earnings</a>
-                        <a href="messages.php" class="shortcut-btn">Messages</a>
+                        <a href="earnings.php" class="shortcut-btn"><i class="ph ph-currency-dollar"></i> View Earnings</a>
+                        <a href="messages.php" class="shortcut-btn"><i class="ph ph-chat-circle-text"></i> Messages</a>
                     </div>
 
                     <h3 class="section-title" style="margin-top: 30px;">Customer Reviews</h3>
@@ -482,12 +483,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                                 <?php if (!empty($rev['profile_photo'])): ?>
                                                     <img src="uploads/profiles/<?php echo $rev['profile_photo']; ?>" style="width:100%; height:100%; object-fit:cover;">
                                                 <?php else: ?>
-                                                    👤
+                                                    <i class="ph ph-user"></i>
                                                 <?php endif; ?>
                                             </div>
                                             <strong style="font-size: 0.9rem;"><?php echo htmlspecialchars($rev['name']); ?></strong>
                                         </div>
-                                        <span style="color: #f59e0b; font-weight: 600; font-size: 0.9rem;">★ <?php echo $rev['rating']; ?>.0</span>
+                                        <span style="color: #f59e0b; font-weight: 600; font-size: 0.9rem;"><i class="ph-fill ph-star"></i> <?php echo $rev['rating']; ?>.0</span>
                                     </div>
                                     <p style="font-size: 0.85rem; color: #475569; margin: 0 0 10px 0; line-height: 1.5;"><?php echo htmlspecialchars($rev['comment']); ?></p>
                                     
@@ -543,7 +544,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                     <?php if (!empty($buyer['profile_photo'])): ?>
                         <img src="uploads/profiles/<?php echo $buyer['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                     <?php else: ?>
-                        <?php echo strtoupper(substr($buyer['name'], 0, 1)); ?>
+                        <i class="ph ph-user-circle"></i>
                     <?php endif; ?>
                 </div>
                 <div>
@@ -601,13 +602,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
 
                             <div class="booking-info-main">
                                 <div class="vehicle-title">
-                                    🚗 <?php echo htmlspecialchars($row['vehicle_type']); ?>
+                                    <i class="ph ph-car"></i> <?php echo htmlspecialchars($row['vehicle_type']); ?>
                                 </div>
                                 <div class="booking-meta-row">
-                                    <div class="meta-pill">📅 <strong><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></strong></div>
-                                    <div class="meta-pill">📋 <strong><?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?></strong></div>
-                                    <div class="meta-pill">📱 <strong><?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?></strong></div>
-                                    <div class="meta-pill" style="color: #2563eb;">💰 <strong>LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?></strong></div>
+                                    <div class="meta-pill"><i class="ph ph-calendar-blank"></i> <strong><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></strong></div>
+                                    <div class="meta-pill"><i class="ph ph-package"></i> <strong><?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?></strong></div>
+                                    <div class="meta-pill"><i class="ph ph-globe"></i> <strong><?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?></strong></div>
+                                    <div class="meta-pill" style="color: #2563eb;"><i class="ph ph-money"></i> <strong>LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?></strong></div>
                                 </div>
                                 <?php if (!empty($row['cancellation_reason'])): ?>
                                     <div style="font-size: 0.7rem; color: #991b1b; margin-top: 5px;">
@@ -694,12 +695,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
             <!-- Tab Navigation -->
             <div style="border-bottom: 2px solid #e2e8f0; margin-bottom: 30px;">
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <a href="?tab=dashboard" class="<?php echo $current_tab == 'dashboard' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'dashboard' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'dashboard' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;">📊 Dashboard</a>
-                    <a href="?tab=experts" class="<?php echo $current_tab == 'experts' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'experts' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'experts' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;">👨‍🔧 Experts</a>
-                    <a href="?tab=buyers" class="<?php echo $current_tab == 'buyers' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'buyers' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'buyers' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;">👥 Buyers</a>
-                    <a href="?tab=bookings" class="<?php echo $current_tab == 'bookings' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'bookings' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'bookings' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;">📋 Bookings</a>
-                    <a href="?tab=payments" class="<?php echo $current_tab == 'payments' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'payments' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'payments' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;">💰 Payments</a>
-                    <a href="?tab=reviews" class="<?php echo $current_tab == 'reviews' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'reviews' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'reviews' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;">⭐ Reviews</a>
+                    <a href="?tab=dashboard" class="<?php echo $current_tab == 'dashboard' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'dashboard' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'dashboard' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-gauge"></i> Dashboard</a>
+                    <a href="?tab=experts" class="<?php echo $current_tab == 'experts' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'experts' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'experts' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-users-three"></i> Experts</a>
+                    <a href="?tab=buyers" class="<?php echo $current_tab == 'buyers' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'buyers' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'buyers' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-users"></i> Buyers</a>
+                    <a href="?tab=bookings" class="<?php echo $current_tab == 'bookings' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'bookings' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'bookings' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-calendar-check"></i> Bookings</a>
+                    <a href="?tab=payments" class="<?php echo $current_tab == 'payments' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'payments' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'payments' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-money"></i> Payments</a>
+                    <a href="?tab=reviews" class="<?php echo $current_tab == 'reviews' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'reviews' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'reviews' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-star"></i> Reviews</a>
                 </div>
             </div>
             
@@ -707,7 +708,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 <!-- Dashboard Overview -->
                 <div class="card" style="margin-bottom: 30px;">
                     <h3 style="margin: 0 0 20px 0;">Pending Expert Approvals</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">Photo</th>
@@ -727,7 +728,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 12px;">
+                                        <td data-label="Photo" style="padding: 12px;">
                                             <div style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                                                 <?php if (!empty($row['profile_photo'])): ?>
                                                     <img src="uploads/profiles/<?php echo $row['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
@@ -736,18 +737,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                                 <?php endif; ?>
                                             </div>
                                         </td>
-                                        <td style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['name']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem;">
+                                        <td data-label="Name" style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['name']); ?></td>
+                                        <td data-label="Contact" style="padding: 12px; font-size: 0.85rem;">
                                             <div style="margin-bottom: 4px;">📞 <?php echo htmlspecialchars($row['phone']); ?></div>
                                             <div style="margin-bottom: 4px; color: #64748b;">✉️ <?php echo htmlspecialchars($row['email']); ?></div>
                                             <?php if (!empty($row['linkedin_url'])): ?>
-                                                <a href="<?php echo htmlspecialchars($row['linkedin_url']); ?>" target="_blank" style="color: #0077b5; font-size: 0.8rem; text-decoration: none;">🔗 LinkedIn</a>
+                                                <a href="<?php echo htmlspecialchars($row['linkedin_url']); ?>" target="_blank" style="color: #0077b5; font-size: 0.8rem; text-decoration: none;"><i class="ph ph-linkedin-logo"></i> LinkedIn</a>
                                             <?php endif; ?>
                                         </td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['district']); ?></td>
-                                        <td style="padding: 12px;"><?php echo $row['experience']; ?> Years</td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo htmlspecialchars(substr($row['qualification'], 0, 50)) . '...'; ?></td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="Service Areas" style="padding: 12px;"><?php echo htmlspecialchars($row['district']); ?></td>
+                                        <td data-label="Experience" style="padding: 12px;"><?php echo $row['experience']; ?> Years</td>
+                                        <td data-label="Qualification" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo htmlspecialchars(substr($row['qualification'], 0, 50)) . '...'; ?></td>
+                                        <td data-label="Action" style="padding: 12px;">
                                             <div style="display: flex; gap: 5px; flex-direction: column;">
                                                 <button onclick="viewExpertDetails(<?php echo $row['expert_id']; ?>)" class="btn btn-outline btn-sm" style="font-size: 0.75rem;">View Details</button>
                                                 <a href="admin_approve.php?id=<?php echo $row['expert_id']; ?>" class="btn btn-primary btn-sm" style="font-size: 0.75rem;">Approve</a>
@@ -767,7 +768,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 <!-- Recent Bookings -->
                 <div class="card">
                     <h3 style="margin: 0 0 20px 0;">Recent Bookings</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">ID</th>
@@ -800,17 +801,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     $color = $status_colors[$row['status']] ?? '#64748b';
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 12px; font-weight: 600;">#<?php echo $row['booking_id']; ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="ID" style="padding: 12px; font-weight: 600;">#<?php echo $row['booking_id']; ?></td>
+                                        <td data-label="Buyer" style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
+                                        <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
+                                        <td data-label="Vehicle" style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
+                                        <td data-label="Date" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></td>
+                                        <td data-label="Status" style="padding: 12px;">
                                             <span style="background: <?php echo $color; ?>22; color: <?php echo $color; ?>; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
                                                 <?php echo $row['status']; ?>
                                             </span>
                                         </td>
-                                        <td style="padding: 12px; font-weight: 600;">LKR <?php echo number_format($row['package_price'] ?? 0, 2); ?></td>
+                                        <td data-label="Amount" style="padding: 12px; font-weight: 600;">LKR <?php echo number_format($row['package_price'] ?? 0, 2); ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -830,7 +831,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                         <input type="text" id="expertSearch" placeholder="Search experts..." style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px;">
                     </div>
                     
-                    <table style="width: 100%; border-collapse: collapse;" id="expertsTable">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;" id="expertsTable">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">Photo</th>
@@ -858,7 +859,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 12px;">
+                                        <td data-label="Photo" style="padding: 12px;">
                                             <div style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                                                 <?php if (!empty($row['profile_photo'])): ?>
                                                     <img src="uploads/profiles/<?php echo $row['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
@@ -867,18 +868,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                                 <?php endif; ?>
                                             </div>
                                         </td>
-                                        <td style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['name']); ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['district']); ?></td>
-                                        <td style="padding: 12px;"><?php echo $row['experience']; ?> Yrs</td>
-                                        <td style="padding: 12px; text-align: center; font-weight: 600; color: #2563eb;"><?php echo $row['total_bookings']; ?></td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="Name" style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['name']); ?></td>
+                                        <td data-label="District" style="padding: 12px;"><?php echo htmlspecialchars($row['district']); ?></td>
+                                        <td data-label="Experience" style="padding: 12px;"><?php echo $row['experience']; ?> Yrs</td>
+                                        <td data-label="Inspections" style="padding: 12px; text-align: center; font-weight: 600; color: #2563eb;"><?php echo $row['total_bookings']; ?></td>
+                                        <td data-label="Rating" style="padding: 12px;">
                                             <?php if ($row['avg_rating']): ?>
                                                 <span style="color: #f59e0b; font-weight: 600;">⭐ <?php echo round($row['avg_rating'], 1); ?></span>
                                             <?php else: ?>
                                                 <span style="color: #94a3b8; font-size: 0.85rem;">No reviews</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="Status" style="padding: 12px;">
                                             <?php if ($row['verified']): ?>
                                                 <span style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">✓ Verified</span>
                                             <?php else: ?>
@@ -888,7 +889,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                                 <span style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 5px;">Available</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="Actions" style="padding: 12px;">
                                             <div style="display: flex; gap: 5px;">
                                                 <a href="expert_profile.php?id=<?php echo $row['expert_id']; ?>" class="btn btn-outline btn-sm" target="_blank">View</a>
                                                 <button onclick="if(confirm('Suspend this expert? They will not be able to receive bookings.')) window.location.href='admin_suspend_user.php?type=expert&id=<?php echo $row['expert_id']; ?>'" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">Suspend</button>
@@ -911,7 +912,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                         <input type="text" id="buyerSearch" placeholder="Search buyers..." style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px;">
                     </div>
                     
-                    <table style="width: 100%; border-collapse: collapse;" id="buyersTable">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;" id="buyersTable">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">Photo</th>
@@ -935,7 +936,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 12px;">
+                                        <td data-label="Photo" style="padding: 12px;">
                                             <div style="width: 40px; height: 40px; border-radius: 50%; background: #fef3c7; overflow: hidden; display: flex; align-items: center; justify-content: center; color: #92400e;">
                                                 <?php if (!empty($row['profile_photo'])): ?>
                                                     <img src="uploads/profiles/<?php echo $row['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
@@ -944,12 +945,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                                 <?php endif; ?>
                                             </div>
                                         </td>
-                                        <td style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['name']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.9rem; color: #64748b;"><?php echo htmlspecialchars($row['email']); ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['phone']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['location']); ?></td>
-                                        <td style="padding: 12px; text-align: center; font-weight: 600; color: #2563eb;"><?php echo $row['total_bookings']; ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['created_at'] ?? 'now')); ?></td>
+                                        <td data-label="Name" style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['name']); ?></td>
+                                        <td data-label="Email" style="padding: 12px; font-size: 0.9rem; color: #64748b;"><?php echo htmlspecialchars($row['email']); ?></td>
+                                        <td data-label="Phone" style="padding: 12px;"><?php echo htmlspecialchars($row['phone']); ?></td>
+                                        <td data-label="Location" style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['location']); ?></td>
+                                        <td data-label="Bookings" style="padding: 12px; text-align: center; font-weight: 600; color: #2563eb;"><?php echo $row['total_bookings']; ?></td>
+                                        <td data-label="Joined" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['created_at'] ?? 'now')); ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -974,7 +975,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                         <button onclick="filterBookings('cancelled')" class="btn btn-sm" style="background: #fee2e2; color: #991b1b;">Cancelled</button>
                     </div>
                     
-                    <table style="width: 100%; border-collapse: collapse;" id="bookingsTable">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;" id="bookingsTable">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">ID</th>
@@ -1010,18 +1011,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     $color = $status_colors[$row['status']] ?? '#64748b';
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;" data-status="<?php echo $row['status']; ?>">
-                                        <td style="padding: 12px; font-weight: 600;">#<?php echo $row['booking_id']; ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="ID" style="padding: 12px; font-weight: 600;">#<?php echo $row['booking_id']; ?></td>
+                                        <td data-label="Buyer" style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
+                                        <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
+                                        <td data-label="Vehicle" style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
+                                        <td data-label="Package" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?></td>
+                                        <td data-label="Date" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></td>
+                                        <td data-label="Status" style="padding: 12px;">
                                             <span style="background: <?php echo $color; ?>22; color: <?php echo $color; ?>; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
                                                 <?php echo $row['status']; ?>
                                             </span>
                                         </td>
-                                        <td style="padding: 12px; font-weight: 600;">LKR <?php echo number_format($row['package_price'] ?? 0, 2); ?></td>
+                                        <td data-label="Amount" style="padding: 12px; font-weight: 600;">LKR <?php echo number_format($row['package_price'] ?? 0, 2); ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -1068,7 +1069,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 
                 <div class="card">
                     <h3 style="margin: 0 0 20px 0;">Recent Transactions</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">Payment ID</th>
@@ -1097,13 +1098,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 12px; font-weight: 600;">#<?php echo $row['payment_id']; ?></td>
-                                        <td style="padding: 12px; color: #2563eb;">#<?php echo $row['booking_id']; ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
-                                        <td style="padding: 12px; font-weight: 600; color: #10b981;">LKR <?php echo number_format($row['amount'], 2); ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo htmlspecialchars($row['payment_method'] ?? 'N/A'); ?></td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['payment_date'])); ?></td>
+                                        <td data-label="Payment ID" style="padding: 12px; font-weight: 600;">#<?php echo $row['payment_id']; ?></td>
+                                        <td data-label="Booking ID" style="padding: 12px; color: #2563eb;">#<?php echo $row['booking_id']; ?></td>
+                                        <td data-label="Buyer" style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
+                                        <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
+                                        <td data-label="Amount" style="padding: 12px; font-weight: 600; color: #10b981;">LKR <?php echo number_format($row['amount'], 2); ?></td>
+                                        <td data-label="Method" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo htmlspecialchars($row['payment_method'] ?? 'N/A'); ?></td>
+                                        <td data-label="Date" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['payment_date'])); ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -1119,7 +1120,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 <!-- Review Management -->
                 <div class="card">
                     <h3 style="margin: 0 0 20px 0;">All Reviews</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
+                    <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="text-align: left; border-bottom: 2px solid #f1f5f9;">
                                 <th style="padding: 12px;">Buyer</th>
@@ -1144,16 +1145,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
-                                        <td style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="Buyer" style="padding: 12px; font-weight: 600;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
+                                        <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
+                                        <td data-label="Rating" style="padding: 12px;">
                                             <span style="color: #f59e0b; font-weight: 600; font-size: 1.1rem;">★ <?php echo $row['rating']; ?>.0</span>
                                         </td>
-                                        <td style="padding: 12px; max-width: 300px;">
+                                        <td data-label="Comment" style="padding: 12px; max-width: 300px;">
                                             <p style="margin: 0; font-size: 0.9rem; color: #475569;"><?php echo htmlspecialchars(substr($row['comment'], 0, 100)) . (strlen($row['comment']) > 100 ? '...' : ''); ?></p>
                                         </td>
-                                        <td style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['review_date'])); ?></td>
-                                        <td style="padding: 12px;">
+                                        <td data-label="Date" style="padding: 12px; font-size: 0.85rem; color: #64748b;"><?php echo date('M j, Y', strtotime($row['review_date'])); ?></td>
+                                        <td data-label="Reply" style="padding: 12px;">
                                             <?php if (!empty($row['expert_reply'])): ?>
                                                 <span style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">✓ Replied</span>
                                             <?php else: ?>

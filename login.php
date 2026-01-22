@@ -81,6 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .login-container {
             max-width: 400px;
@@ -122,11 +123,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <form method="POST" action="">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="text" name="email" required placeholder="Enter email or admin username">
+                    <div style="position: relative;">
+                        <i class="ph ph-user" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="email" required placeholder="Enter email or admin username" style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required>
+                    <div style="position: relative;">
+                         <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="password" name="password" required placeholder="Enter your password" style="padding-left: 35px;">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
             </form>

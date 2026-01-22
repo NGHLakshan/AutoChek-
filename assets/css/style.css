@@ -1,9 +1,11 @@
 :root {
-    --primary: #10b981; /* Emerald/Green focus for trust */
+    --primary: #10b981;
+    /* Emerald/Green focus for trust */
     --primary-dark: #059669;
     --primary-glow: rgba(16, 185, 129, 0.15);
     --secondary: #64748b;
-    --accent: #8b5cf6; /* Violet for some flair */
+    --accent: #8b5cf6;
+    /* Violet for some flair */
     --bg-light: #f8fafc;
     --bg-glass: rgba(255, 255, 255, 0.7);
     --white: #ffffff;
@@ -13,11 +15,17 @@
     --warning: #f59e0b;
     --danger: #ef4444;
     --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-    --hover-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    --hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+* {
+    box-sizing: border-box;
 }
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
 }
 
 body {
@@ -28,6 +36,24 @@ body {
     padding: 0;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* Global Responsive Resets */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Form Elements Responsive */
+input,
+select,
+textarea {
+    max-width: 100%;
 }
 
 /* Glassmorphism Utility */
@@ -62,7 +88,7 @@ body {
 /* Header */
 header {
     background: var(--white);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     padding: 15px 0;
     margin-bottom: 30px;
 }
@@ -72,6 +98,8 @@ header .container {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    position: relative;
+    /* Context for absolute nav */
 }
 
 header h1 {
@@ -115,7 +143,7 @@ header nav a:hover {
     background: var(--white);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     border: 1px solid #f1f5f9;
 }
 
@@ -253,10 +281,354 @@ header nav a:hover {
     font-weight: 600;
 }
 
-.status-pending { background: #fff7ed; color: #c2410c; }
-.status-approved { background: #eff6ff; color: #1d4ed8; }
-.status-in_progress { background: #fef3c7; color: #92400e; }
-.status-completed { background: #f0fdf4; color: #15803d; }
-.status-rejected { background: #fef2f2; color: #b91c1c; }
-.status-cancelled { background: #f1f5f9; color: #475569; }
+.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
 
+.status-approved {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.status-in_progress {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-completed {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.status-rejected {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.status-cancelled {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+
+    /* Container & Layout */
+    .container {
+        padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dashboard-grid,
+    .shortcut-grid {
+        grid-template-columns: 1fr !important;
+        /* Stack columns */
+    }
+
+    .main-layout {
+        display: block !important;
+        /* Stack left/right cols on dashboard */
+    }
+
+    .left-col,
+    .right-col {
+        width: 100%;
+        margin-bottom: 30px;
+    }
+
+    /* Header & Navigation */
+    header .container {
+        flex-wrap: wrap;
+    }
+
+    header nav {
+        width: 100%;
+        display: none;
+        /* Hidden by default on mobile */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        z-index: 9999;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid #f1f5f9;
+        padding-bottom: 10px;
+    }
+
+    header nav.active {
+        display: block !important;
+    }
+
+    header {
+        position: relative;
+        /* Context for absolute nav */
+    }
+
+    header nav ul {
+        flex-direction: column;
+        background: transparent;
+        padding: 0;
+        gap: 0;
+    }
+
+    header nav a {
+        display: block;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 1rem;
+    }
+
+    header nav a:last-child {
+        border-bottom: none;
+    }
+
+    .mobile-menu-btn {
+        display: block !important;
+        /* Show toggle button */
+    }
+
+    /* Forms */
+    .login-container,
+    .form-container {
+        margin: 20px auto !important;
+        padding: 20px;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Tables */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Search Box */
+    .search-box {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px !important;
+    }
+
+    .search-box>div,
+    .search-box input,
+    .search-box select {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Dashboard items */
+    .request-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .request-item .actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    /* Buyer Dashboard specific card tweaks */
+    .buyer-view .booking-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .buyer-view .expert-snapshot {
+        width: 100%;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+
+    .buyer-view .status-and-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 15px;
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 10px;
+    }
+
+    .buyer-view .action-btns {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: all 0.2s;
+}
+
+.mobile-menu-btn:hover {
+    background: #f1f5f9;
+}
+
+/* --- Advanced Mobile Optimizations --- */
+/* --- Advanced Mobile Optimizations --- */
+@media (max-width: 768px) {
+
+    /* 0. Header & Navigation */
+    .mobile-menu-btn {
+        display: block !important;
+    }
+
+    header nav {
+        display: none !important;
+        /* Force hide */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #f1f5f9;
+        padding: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        width: 100%;
+    }
+
+    header nav.active {
+        display: block !important;
+        /* Force show when active */
+    }
+
+    header nav ul {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+
+    header nav ul li {
+        width: 100%;
+        text-align: center;
+    }
+
+    header nav a {
+        display: block;
+        padding: 10px;
+        width: 100%;
+    }
+
+    /* 1. Global Touch Targets & Spacing */
+    .btn {
+        padding: 12px 20px;
+        /* Larger touch area */
+        width: 100%;
+        /* Full width buttons on mobile */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        /* Comfortable padding */
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 2. Expert Cards Stacking */
+    .expert-card>div {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center;
+    }
+
+    .expert-photo {
+        margin: 0 auto 15px auto !important;
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    .expert-info {
+        width: 100%;
+    }
+
+    .expert-info h3 {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .social-links {
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    /* 3. Responsive Tables (Card View Strategy) */
+    .responsive-table-card thead {
+        display: none;
+        /* Hide headers */
+    }
+
+    .responsive-table-card tr {
+        display: block;
+        margin-bottom: 20px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .responsive-table-card td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: right;
+        font-size: 0.9rem;
+    }
+
+    .responsive-table-card td:last-child {
+        border-bottom: none;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    /* Inject labels via attribute if needed, or rely on distinct styling */
+    .responsive-table-card td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #64748b;
+        text-align: left;
+        margin-right: 15px;
+    }
+
+    /* 4. Map & Forms */
+    #map {
+        height: 40vh !important;
+        /* Dynamic height */
+        min-height: 250px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+        font-size: 16px !important;
+        /* Prevent iOS zoom */
+    }
+}

@@ -102,6 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Join as an Expert | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
@@ -142,6 +143,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-top: -1px;
         }
+
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 20px 15px; /* Smaller margins on mobile */
+                padding: 20px;
+            }
+            #map {
+                height: 250px; /* Slightly smaller map on mobile */
+            }
+        }
     </style>
 </head>
 <body>
@@ -157,21 +168,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <form method="POST" action="" enctype="multipart/form-data">
                 <!-- Account Info -->
+                <!-- Account Info -->
                 <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" name="name" required placeholder="Ex. Kamal Perera">
+                    <div style="position: relative;">
+                        <i class="ph ph-user" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="name" required placeholder="Ex. Kamal Perera" style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" name="email" required>
+                    <div style="position: relative;">
+                        <i class="ph ph-envelope" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="email" name="email" required style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required>
+                    <div style="position: relative;">
+                        <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="password" name="password" required style="padding-left: 35px;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
-                    <input type="text" name="phone" required placeholder="07x xxxxxxx">
+                    <div style="position: relative;">
+                        <i class="ph ph-phone" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="phone" required placeholder="07x xxxxxxx" style="padding-left: 35px;">
+                    </div>
                 </div>
 
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0;">
@@ -182,6 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <small style="color: #64748b; margin-bottom: 5px; display: block;">Search and add vehicles you inspect (Category, Brand, or Model).</small>
                     <div style="position: relative;">
                             <div class="tag-container" id="tagContainer">
+                                <i class="ph ph-magnifying-glass" style="color: #94a3b8; margin: 0 5px;"></i>
                                 <input type="text" class="tag-input" id="specSearch" placeholder="Type to search (e.g. 'Toyota', 'Bike')..." autocomplete="off">
                             </div>
                             <div class="suggestions-list" id="suggestions"></div>
@@ -197,7 +222,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     
                     <!-- Text Input for Location/District with Autocomplete -->
                     <div style="position: relative;">
-                        <input type="text" name="district" id="district-input" required placeholder="e.g. Badulla" style="margin-bottom: 10px;" autocomplete="off">
+                        <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
+                        <input type="text" name="district" id="district-input" required placeholder="e.g. Badulla" style="margin-bottom: 10px; padding-left: 35px;" autocomplete="off">
                         <div id="location-suggestions"></div>
                     </div>
                     

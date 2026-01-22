@@ -28,29 +28,32 @@ if ($current_role == 'expert' && $current_user_id) {
 <header>
     <div class="container">
         <h1><a href="index.php" style="text-decoration: none; color: inherit;">Auto<span>Chek</span></a></h1>
+        
+        <button class="mobile-menu-btn" onclick="document.querySelector('header nav').classList.toggle('active')"><i class="ph ph-list" style="font-size: 1.5rem;"></i></button>
+        
         <nav>
             <ul>
-                <li><a href="index.php">Home</a></li>
+                <li><a href="index.php"><i class="ph ph-house"></i> Home</a></li>
                 
                 <?php if ($current_user_id): ?>
                     <?php if ($current_role == 'buyer'): ?>
-                        <li><a href="experts.php">Find Expert</a></li>
-                        <li><a href="dashboard.php">Bookings</a></li>
-                        <li><a href="profile_settings.php">Profile Settings</a></li>
+                        <li><a href="experts.php"><i class="ph ph-magnifying-glass"></i> Find Expert</a></li>
+                        <li><a href="dashboard.php"><i class="ph ph-calendar-check"></i> Bookings</a></li>
+                        <li><a href="profile_settings.php"><i class="ph ph-user-gear"></i> Profile Settings</a></li>
                     <?php elseif ($current_role == 'admin'): ?>
-                        <li><a href="dashboard.php">Dashboard</a></li>
-                        <li><a href="settings.php">Settings</a></li>
+                        <li><a href="dashboard.php"><i class="ph ph-gauge"></i> Dashboard</a></li>
+                        <li><a href="settings.php"><i class="ph ph-gear"></i> Settings</a></li>
                     <?php else: ?>
-                        <li><a href="dashboard.php">Dashboard</a></li>
-                        <li><a href="profile_settings.php">Profile</a></li>
-                        <li><a href="settings.php">Settings</a></li>
+                        <li><a href="dashboard.php"><i class="ph ph-gauge"></i> Dashboard</a></li>
+                        <li><a href="profile_settings.php"><i class="ph ph-user"></i> Profile</a></li>
+                        <li><a href="settings.php"><i class="ph ph-gear"></i> Settings</a></li>
                     <?php endif; ?>
 
-                    <li><a href="logout.php" onclick="return confirm('Are you sure you want to logout?')">Logout</a></li>
+                    <li><a href="logout.php" onclick="return confirm('Are you sure you want to logout?')" style="display: flex; align-items: center; gap: 5px;"><i class="ph ph-sign-out"></i> Logout</a></li>
                 <?php else: ?>
-                    <li><a href="experts.php">Find Expert</a></li>
-                    <li><a href="register_expert.php" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">Become an Expert</a></li>
-                    <li><a href="login.php">Login</a></li>
+                    <li><a href="experts.php"><i class="ph ph-magnifying-glass"></i> Find Expert</a></li>
+                    <li><a href="register_expert.php" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="ph ph-briefcase"></i> Become an Expert</a></li>
+                    <li><a href="login.php"><i class="ph ph-sign-in"></i> Login</a></li>
                 <?php endif; ?>
             </ul>
         </nav>
