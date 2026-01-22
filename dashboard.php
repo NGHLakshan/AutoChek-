@@ -25,7 +25,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .card { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; border: 1px solid #f1f5f9; }
@@ -40,8 +40,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
         
         .buyer-view .booking-card { 
             background: white; 
-            border-radius: 4px; 
-            padding: 12px 24px; 
+            border-radius: 8px; /* Increased from 4px */
+            padding: 20px 24px; /* Increased from 12px 24px */
             border: none;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); 
             display: flex; 
@@ -65,23 +65,33 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
         .buyer-view .booking-card.status-cancelled { border-left-color: #ef4444; }
         .buyer-view .booking-card.status-rejected { border-left-color: #64748b; }
 
-        .buyer-view .expert-snapshot { display: flex; align-items: center; gap: 12px; width: 220px; flex-shrink: 0; }
+        .buyer-view .expert-snapshot { display: flex; align-items: center; gap: 12px; width: 180px; flex-shrink: 0; }
         .buyer-view .expert-img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #e2e8f0; }
         
-        .buyer-view .booking-info-main { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; }
-        .buyer-view .vehicle-title { font-weight: 700; color: #334155; font-size: 0.9rem; letter-spacing: -0.01em; }
+        .buyer-view .booking-info-main { display: flex; flex-direction: column; flex-grow: 1; min-width: 0; padding-left: 10px; }
+        .buyer-view .vehicle-title { font-weight: 700; color: #334155; font-size: 0.95rem; letter-spacing: -0.01em; margin-bottom: 8px; }
         
-        .buyer-view .booking-meta-row { display: flex; gap: 15px; margin-top: 4px; }
-        .buyer-view .meta-pill { font-size: 0.7rem; color: #64748b; display: flex; align-items: center; gap: 4px; }
+        .buyer-view .booking-meta-row { display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap; }
+        .buyer-view .meta-pill { 
+            font-size: 0.7rem; 
+            color: #475569; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            background: #f8fafc; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            border: 1px solid #e2e8f0;
+        }
         
         .buyer-view .status-and-actions { display: flex; align-items: center; gap: 20px; }
-        .buyer-view .action-btns { display: flex; gap: 20px; }
+        .buyer-view .action-btns { display: flex; gap: 10px; }
         
         /* Action Buttons as Tactile Labels */
         .buyer-view .action-btn { 
-            padding: 6px 16px; 
+            padding: 8px 16px; 
             font-size: 0.7rem; 
-            border-radius: 4px; 
+            border-radius: 6px; 
             font-weight: 700; 
             text-decoration: none; 
             text-transform: uppercase;
@@ -91,14 +101,14 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
             background: white;
             color: #475569;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transform: rotate(-1deg);
+            transform: none;
         }
-        .buyer-view .action-btn:nth-child(even) { transform: rotate(1deg); }
+        .buyer-view .action-btn:nth-child(even) { transform: none; }
         .buyer-view .action-btn:hover { 
             background: #eff6ff; 
             border-color: #2563eb; 
             color: #2563eb; 
-            transform: scale(1.05) rotate(0deg); 
+            transform: translateY(-1px); 
             z-index: 5;
         }
         .buyer-view .action-btn.btn-primary { 
@@ -155,7 +165,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
             ?>
 
             <!-- EXPERT DASHBOARD -->
-            <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
+            <div class="mobile-stack" style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
                 <div class="avatar" style="width: 60px; height: 60px; font-size: 1.5rem; background: #dbeafe; color: #1e40af; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                     <?php if (!empty($expert['profile_photo'])): ?>
                         <img src="uploads/profiles/<?php echo $expert['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
@@ -539,7 +549,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
             $buyer = ($buyer_res) ? $buyer_res->fetch_assoc() : null;
             if (!$buyer) { echo "<div class='alert-error'>Buyer account not found.</div>"; exit; }
             ?>
-            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 30px;">
+            <div class="mobile-stack" style="display: flex; gap: 20px; align-items: center; margin-bottom: 30px;">
                 <div class="avatar" style="width: 60px; height: 60px; font-size: 1.5rem; background: #fef3c7; color: #92400e; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                     <?php if (!empty($buyer['profile_photo'])): ?>
                         <img src="uploads/profiles/<?php echo $buyer['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
@@ -828,7 +838,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h3 style="margin: 0;">All Experts</h3>
-                        <input type="text" id="expertSearch" placeholder="Search experts..." style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px;">
+                        <input type="text" id="expertSearch" placeholder="Search experts..." style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px; max-width: 100%;">
                     </div>
                     
                     <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;" id="expertsTable">
@@ -909,7 +919,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <h3 style="margin: 0;">All Buyers</h3>
-                        <input type="text" id="buyerSearch" placeholder="Search buyers..." style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px;">
+                        <input type="text" id="buyerSearch" placeholder="Search buyers..." style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px; max-width: 100%;">
                     </div>
                     
                     <table class="responsive-table-card" style="width: 100%; border-collapse: collapse;" id="buyersTable">

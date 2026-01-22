@@ -54,7 +54,7 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($expert['name']); ?> | AutoChek Expert</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
@@ -72,42 +72,43 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
         .profile-sidebar {
             background: white;
             padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             border: 1px solid #f1f5f9;
             text-align: center;
             height: fit-content;
         }
         .profile-photo {
-            width: 150px;
-            height: 150px;
+            width: 130px; /* Reduced from 150px */
+            height: 130px;
             border-radius: 50%;
             margin: 0 auto 20px;
             overflow: hidden;
-            background: #f1f5f9;
+            background: #f8fafc;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: #cbd5e1;
-            border: 4px solid var(--primary);
+            border: 3px solid var(--primary); /* Thinner border */
         }
         .spec-tag {
             display: inline-block;
-            background: #eff6ff;
-            color: #1d4ed8;
-            padding: 4px 12px;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            margin: 0 5px 5px 0;
+            font-size: 0.8rem;
+            margin: 0 4px 4px 0;
             font-weight: 500;
+            border: 1px solid #e2e8f0;
         }
         #map { height: 250px; width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 15px; }
         .package-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px 20px;
             margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
@@ -141,35 +142,53 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
                         ⭐ New Expert
                     <?php endif; ?>
                 </div>
+
+                <!-- Booking CTA -->
+                <?php if (!$is_owner && (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin')): ?>
+                    <a href="book.php?expert_id=<?php echo $expert['expert_id']; ?>" class="btn btn-primary" style="display: flex; width: 100%; box-sizing: border-box; justify-content: center; align-items: center; gap: 8px; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25); margin-bottom: 30px;">
+                        <i class="ph ph-calendar-plus" style="font-size: 1.4rem;"></i>
+                        Book Inspection
+                    </a>
+                <?php endif; ?>
                 
                 <!-- Statistics Cards -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 12px; text-align: center; color: white;">
-                        <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 5px;"><?php echo $completed_count; ?></div>
-                        <div style="font-size: 0.75rem; opacity: 0.9;">Inspections</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); padding: 12px; border-radius: 12px; text-align: center; color: white;">
+                        <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 2px;"><?php echo $completed_count; ?></div>
+                        <div style="font-size: 0.65rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.05em;">Inspections</div>
                     </div>
-                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 15px; border-radius: 12px; text-align: center; color: white;">
-                        <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 5px;"><?php echo $expert['experience']; ?></div>
-                        <div style="font-size: 0.75rem; opacity: 0.9;">Years Exp</div>
+                    <div style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); padding: 12px; border-radius: 12px; text-align: center; color: white;">
+                        <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 2px;"><?php echo $expert['experience']; ?></div>
+                        <div style="font-size: 0.65rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.05em;">Years Exp</div>
                     </div>
                 </div>
                 
-                <div style="text-align: left; font-size: 0.95rem; color: #475569; background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <p style="margin-bottom: 10px;"><strong>📍 Location:</strong> <?php echo htmlspecialchars($expert['district']); ?></p>
-                    <p style="margin-bottom: 10px;"><strong>🎓 Qualification:</strong><br><span style="font-size: 0.9rem; color: #64748b;"><?php echo nl2br(htmlspecialchars($expert['qualification'])); ?></span></p>
+                <div style="text-align: left; font-size: 0.9rem; color: #475569; background: #f1f5f9; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+                    <p style="margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px;">
+                        <i class="ph ph-map-pin" style="margin-top: 3px; color: #64748b;"></i>
+                        <span><strong>Location:</strong><br><?php echo htmlspecialchars($expert['district']); ?></span>
+                    </p>
+                    <p style="margin-bottom: 12px; display: flex; align-items: flex-start; gap: 8px;">
+                        <i class="ph ph-graduation-cap" style="margin-top: 3px; color: #64748b;"></i>
+                        <span><strong>Qualification:</strong><br><span style="color: #64748b;"><?php echo nl2br(htmlspecialchars($expert['qualification'])); ?></span></span>
+                    </p>
                     
                     <?php if(!empty($expert['linkedin_url'])): ?>
-                        <p style="margin-bottom: 10px;"><strong>🔗 LinkedIn:</strong> <a href="<?php echo htmlspecialchars($expert['linkedin_url']); ?>" target="_blank" style="color: var(--primary); text-decoration: none;">View Profile</a></p>
+                        <p style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-linkedin-logo" style="color: #0077b5;"></i>
+                            <a href="<?php echo htmlspecialchars($expert['linkedin_url']); ?>" target="_blank" style="color: #0077b5; text-decoration: none; font-weight: 600;">LinkedIn Profile</a>
+                        </p>
                     <?php endif; ?>
                     
                     <?php if(!empty($expert['website_url'])): ?>
-                        <p><strong>🌐 Website:</strong> <a href="<?php echo htmlspecialchars($expert['website_url']); ?>" target="_blank" style="color: var(--primary); text-decoration: none;">Visit Site</a></p>
+                        <p style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-globe" style="color: #64748b;"></i>
+                            <a href="<?php echo htmlspecialchars($expert['website_url']); ?>" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 600;">Visit Website</a>
+                        </p>
                     <?php endif; ?>
                 </div>
 
-                <?php if (!$is_owner && (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin')): ?>
-                    <a href="book.php?expert_id=<?php echo $expert['expert_id']; ?>" class="btn btn-primary" style="width:100%; padding: 15px; font-weight: 700; font-size: 1.1rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);">Book Inspection Now</a>
-                <?php elseif ($is_owner): ?>
+                <?php if ($is_owner): ?>
                     <div style="background: #eff6ff; color: #1e40af; padding: 15px; border-radius: 12px; border: 1px solid #dbeafe; font-size: 0.9rem; font-weight: 500;">
                         👋 You are viewing your own public profile.
                         <a href="profile_settings.php" style="display: block; margin-top: 10px; color: #2563eb; font-weight: 700; text-decoration: none;">Edit Settings →</a>
@@ -183,28 +202,34 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
 
             <main>
                 <div class="card" style="margin-bottom: 30px; padding: 30px;">
-                    <h3 class="section-title">About Expert</h3>
-                    <p style="line-height: 1.8; color: #475569; font-size: 1.05rem;">
+                    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-info" style="color: var(--primary);"></i> About Expert
+                    </h3>
+                    <p style="line-height: 1.8; color: #475569; font-size: 1rem; margin-top: 15px;">
                         <?php echo nl2br(htmlspecialchars($expert['bio'])); ?>
                     </p>
                 </div>
 
                 <div class="card" style="margin-bottom: 30px; padding: 30px;">
-                    <h3 class="section-title">Vehicle Specializations</h3>
-                    <div style="margin-top: 15px;">
+                    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-car" style="color: var(--primary);"></i> Vehicle Specializations
+                    </h3>
+                    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px;">
                         <?php if (!empty($saved_specs)): ?>
                             <?php foreach ($saved_specs as $spec): ?>
                                 <span class="spec-tag"><?php echo htmlspecialchars($spec); ?></span>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p style="color: #94a3b8;">No specific vehicle types listed.</p>
+                            <p style="color: #94a3b8; font-style: italic;">No specific vehicle types listed.</p>
                         <?php endif; ?>
                     </div>
                 </div>
 
                 <div class="card" style="margin-bottom: 30px; padding: 30px;">
-                    <h3 class="section-title">Inspection Packages</h3>
-                    <div style="margin-top: 15px;">
+                    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-package" style="color: var(--primary);"></i> Inspection Packages
+                    </h3>
+                    <div style="margin-top: 20px;">
                         <?php if (!empty($packages)): ?>
                             <?php foreach ($packages as $pkg): ?>
                                 <div class="package-card">
@@ -213,22 +238,28 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
                                         <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #64748b;">Full vehicle diagnostics and report.</p>
                                     </div>
                                     <div style="text-align: right;">
-                                        <span style="font-size: 1.25rem; font-weight: 700; color: #2563eb;">LKR <?php echo number_format($pkg['price'], 2); ?></span>
+                                        <span style="font-size: 1.15rem; font-weight: 700; color: #2563eb;">LKR <?php echo number_format($pkg['price'], 2); ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p style="color: #94a3b8;">No standard packages listed. Please contact for a quote.</p>
+                            <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px dashed #e2e8f0;">
+                                <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">No standard packages listed. Please contact for a quote.</p>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <div class="card" style="margin-bottom: 30px; padding: 30px;">
-                    <h3 class="section-title">Service Location</h3>
+                <div class="card" style="margin-bottom: 40px; padding: 30px;">
+                    <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-map-pin" style="color: var(--primary);"></i> Service Location
+                    </h3>
                     <div id="map"></div>
                 </div>
 
-                <h3 class="section-title">Verified Reviews</h3>
+                <h3 class="section-title" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                    <i class="ph ph-star" style="color: #f59e0b;"></i> Verified Reviews
+                </h3>
                 <?php
                 $rev_sql = "SELECT r.*, b.name as buyer_name, b.profile_photo FROM review r JOIN buyer b ON r.buyer_id = b.buyer_id WHERE r.expert_id = $expert_id ORDER BY r.review_date DESC";
                 $reviews = $conn->query($rev_sql);

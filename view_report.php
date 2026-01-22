@@ -47,6 +47,16 @@ if ($report_id > 0) {
         .value { background: #fff; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 6px; margin-top: 5px; }
         .rating-box { text-align: center; background: #1e293b; color: white; padding: 20px; border-radius: 8px; margin-top: 20px; }
         .rating-score { font-size: 3rem; font-weight: 700; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 20px !important; }
+            .meta { 
+                grid-template-columns: 1fr !important; 
+                gap: 15px !important; 
+                padding: 15px !important;
+            }
+            h1 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>

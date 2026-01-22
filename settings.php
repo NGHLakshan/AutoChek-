@@ -140,7 +140,7 @@ if ($role == 'expert') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
@@ -251,7 +251,7 @@ if ($role == 'expert') {
                                 <input type="password" name="current_password" placeholder="••••••••" style="padding-left: 35px;">
                             </div>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                             <div class="form-group">
                                 <label>New Password</label>
                                 <div style="position: relative;">

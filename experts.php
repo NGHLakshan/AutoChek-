@@ -14,7 +14,7 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find an Expert | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         .expert-card { 

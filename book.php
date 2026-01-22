@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Inspection | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <style>
         .form-container {
             max-width: 500px;
@@ -122,7 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="form-group">
                     <label>Service Type</label>
-                    <div style="display: flex; gap: 20px; align-items: center; padding: 5px;">
+                    <div class="mobile-stack" style="display: flex; gap: 20px; align-items: center; padding: 5px;">
                         <label style="font-weight: 400; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                             <input type="radio" name="service_type" value="Physical" checked> Physical (On-site)
                         </label>

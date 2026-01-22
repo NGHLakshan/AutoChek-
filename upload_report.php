@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="report-grid">
             <h2 class="section-title">Inspection Details</h2>
             
-            <div class="client-header">
+            <div class="client-header mobile-stack">
                 <div class="avatar" style="width: 50px; height: 50px; font-size: 1.2rem;">👤</div>
                 <div>
                     <h3 style="margin: 0;"><?php echo htmlspecialchars($booking['buyer_name']); ?></h3>

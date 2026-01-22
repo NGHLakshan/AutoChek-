@@ -307,6 +307,40 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
 <body>
 
     <?php include 'header.php'; ?>
+    
+    <style>
+        @media (max-width: 768px) {
+            .messages-container {
+                display: flex !important;
+                flex-direction: column !important;
+                height: auto !important;
+            }
+            .conversations-list {
+                <?php if ($active_chat): ?>display: none;<?php endif; ?>
+                width: 100%;
+            }
+            .chat-container {
+                <?php if (!$active_chat): ?>display: none;<?php endif; ?>
+                width: 100%;
+                height: 70vh;
+            }
+            .chat-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .back-btn {
+                display: inline-flex !important;
+                align-items: center;
+                padding: 8px;
+                background: #f1f5f9;
+                border-radius: 50%;
+                color: #64748b;
+                text-decoration: none;
+            }
+        }
+        .back-btn { display: none; }
+    </style>
 
     <div class="container">
         <h2>Messages</h2>
@@ -351,6 +385,7 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
             <div class="chat-container">
                 <?php if ($active_chat): ?>
                     <div class="chat-header" style="display: flex; align-items: center; gap: 15px;">
+                        <a href="messages.php" class="back-btn"><i class="ph ph-arrow-left"></i></a>
                         <div class="avatar" style="width: 45px; height: 45px; border-radius: 50%; background: #f1f5f9; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                             <?php if (!empty($active_chat['photo'])): ?>
                                 <img src="uploads/profiles/<?php echo $active_chat['photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">

@@ -25,6 +25,7 @@ if ($current_role == 'expert' && $current_user_id) {
     }
 }
 ?>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 <header>
     <div class="container">
         <h1><a href="index.php" style="text-decoration: none; color: inherit;">Auto<span>Chek</span></a></h1>
@@ -52,7 +53,7 @@ if ($current_role == 'expert' && $current_user_id) {
                     <li><a href="logout.php" onclick="return confirm('Are you sure you want to logout?')" style="display: flex; align-items: center; gap: 5px;"><i class="ph ph-sign-out"></i> Logout</a></li>
                 <?php else: ?>
                     <li><a href="experts.php"><i class="ph ph-magnifying-glass"></i> Find Expert</a></li>
-                    <li><a href="register_expert.php" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i class="ph ph-briefcase"></i> Become an Expert</a></li>
+                    <li><a href="register_expert.php"><i class="ph ph-briefcase"></i> Become an Expert</a></li>
                     <li><a href="login.php"><i class="ph ph-sign-in"></i> Login</a></li>
                 <?php endif; ?>
             </ul>

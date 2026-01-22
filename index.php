@@ -10,7 +10,7 @@ require_once 'db.php';
     <title>AutoChek | Vehicle Inspection Marketplace</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <style>
         /* Homepage Specific Enhancements */
         .hero {
@@ -205,7 +205,7 @@ require_once 'db.php';
         <div class="container">
             <h2>Find <span>Trusted</span> Vehicle <br>Inspection Experts in Badulla</h2>
             <p>Connect with verified professionals for accurate pre-purchase inspections, ensuring a secure and informed buying experience.</p>
-            <div style="gap: 20px; display: flex; justify-content: center;">
+            <div class="mobile-stack" style="gap: 20px; display: flex; justify-content: center;">
                 <a href="experts.php" class="btn btn-primary" style="padding: 18px 45px; font-size: 1.1rem; border-radius: 50px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);">Browse Experts</a>
                 <?php if(!isset($_SESSION['user_id'])): ?>
                     <a href="register_expert.php" class="btn btn-outline" style="padding: 18px 45px; font-size: 1.1rem; border-radius: 50px;">Join as Expert</a>

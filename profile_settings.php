@@ -227,7 +227,7 @@ if ($role == 'buyer') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Settings | AutoChek</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -280,7 +280,7 @@ if ($role == 'buyer') {
             <?php echo $message; ?>
             
             <form method="POST" enctype="multipart/form-data">
-                <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 30px;">
+                <div class="mobile-stack" style="display: flex; gap: 20px; align-items: center; margin-bottom: 30px;">
                     <div id="photoPreview" style="width: 100px; height: 100px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         <?php if (!empty($user['profile_photo'])): ?>
                             <img src="uploads/profiles/<?php echo $user['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
@@ -346,7 +346,7 @@ if ($role == 'buyer') {
                             <input type="password" name="current_password" placeholder="••••••••" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
                         </div>
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
                         <div class="form-group">
                             <label>New Password</label>
                             <div style="position: relative;">
@@ -442,7 +442,7 @@ if ($role == 'buyer') {
                         <input type="file" name="certification" accept=".pdf,.jpg,.jpeg,.png">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
                             <label>LinkedIn Profile URL</label>
                             <div style="position: relative;">
