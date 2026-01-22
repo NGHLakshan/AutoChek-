@@ -103,11 +103,29 @@ if ($report_id > 0) {
             <div class="rating-score"><?php echo $report['overall_rating']; ?>/10</div>
         </div>
 
-        <div style="text-align: center; margin-top: 30px;">
-            <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Print Report</button>
+        <div class="no-print" style="text-align: center; margin-top: 30px;" data-html2canvas-ignore="true">
+            <button onclick="downloadPDF()" style="padding: 10px 20px; cursor: pointer; background: #0f172a; color: white; border: none; border-radius: 5px; font-weight: 600;">Download PDF</button>
         </div>
 
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin:       [10, 10, 10, 10], // top, left, bottom, right
+                filename:     'Inspection_Report_<?php echo $report_id; ?>.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Temporarily hide the button container for the screenshot if data-html2canvas-ignore doesn't work as expected in all versions, 
+            // but the attribute should handle it.
+            
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
 </body>
 </html>
