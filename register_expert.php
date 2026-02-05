@@ -53,9 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Insert Expert
-    $stmt = $conn->prepare("INSERT INTO expert (name, email, phone, district, qualification, experience, password, latitude, longitude, certification_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssiddds", $name, $email, $phone, $district, $qualification, $experience, $password, $latitude, $longitude, $cert_filename);
+    // Insert Expert (Pending Verification)
+    $stmt = $conn->prepare("INSERT INTO expert (name, email, phone, district, qualification, experience, password, latitude, longitude, certification_file, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
+    $stmt->bind_param("sssssisdds", $name, $email, $phone, $district, $qualification, $experience, $password, $latitude, $longitude, $cert_filename);
     
     if ($stmt->execute()) {
         $new_expert_id = $conn->insert_id;
@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
              }
          }
 
-        $message = "<div class='alert-success'><strong>✅ Registration Successful!</strong><br><br>Your expert account has been created. However, you cannot log in yet.<br><br><strong>Next Steps:</strong><ol style='margin: 10px 0; padding-left: 20px;'><li>Wait for admin approval (usually within 24 hours)</li><li>You'll receive confirmation once approved</li><li>Then you can <a href='login.php' style='color: #166534; text-decoration: underline;'>log in here</a></li></ol><p style='margin-top: 10px;'><strong>Note:</strong> All expert accounts require manual verification for quality assurance.</p></div>";
+        $message = "<div class='alert-success'><strong>✅ Account Created!</strong><br><br>Your expert account is pending admin approval. You will be able to log in once an administrator verifies your details.</div>";
     } else {
         $message = "<div class='alert-error'>Error: " . $stmt->error . "</div>";
         if ($conn->errno == 1062) {
@@ -221,11 +221,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <small style="color: #64748b; margin-bottom: 10px; display: block;">Enter your service area or drag the pin on the map to set your exact location.</small>
                     
                     <!-- Text Input for Location/District with Autocomplete -->
-                    <div style="position: relative;">
+                    <div style="position: relative; z-index: 1001;">
                         <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
                         <input type="text" name="district" id="district-input" required placeholder="e.g. Badulla" style="margin-bottom: 10px; padding-left: 35px;" autocomplete="off">
                         <div id="location-suggestions"></div>
                     </div>
+                    <div id="location-error" class="alert-error" style="display:none; padding: 10px; font-size: 0.9rem; margin-top: 5px;"></div>
                     
                     <!-- Map -->
                     <div id="map"></div>
@@ -323,105 +324,100 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         });
 
-        // --- Map Logic ---
-        var defaultLat = 6.9271; 
-        var defaultLng = 79.8612;
-        var map = L.map('map').setView([defaultLat, defaultLng], 8);
+        // --- Map & Location Logic ---
+        var defaultLat = 6.9847; // Badulla default (approx center)
+        var defaultLng = 81.0564;
+        var map = L.map('map').setView([defaultLat, defaultLng], 10);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
         var markers = L.layerGroup().addTo(map);
+
+        const locInput = document.getElementById('district-input');
+        const locSuggestions = document.getElementById('location-suggestions');
+        const locError = document.getElementById('location-error');
+        const latInput = document.getElementById('lat');
+        const lngInput = document.getElementById('lng');
+
+        // Error Feedback
+        function showError(msg) {
+            locError.textContent = msg;
+            locError.style.display = 'block';
+            locInput.style.borderColor = '#991b1b';
+        }
+        
+        function clearError() {
+            locError.style.display = 'none';
+            locInput.style.borderColor = '#cbd5e1';
+        }
 
         function addMarker(lat, lng, popupText) {
             markers.clearLayers();
             var marker = L.marker([lat, lng], {draggable: true});
             marker.bindPopup(popupText).openPopup();
             markers.addLayer(marker);
-            document.getElementById('lat').value = lat;
-            document.getElementById('lng').value = lng;
+            latInput.value = lat;
+            lngInput.value = lng;
             return marker;
         }
 
-        map.on('click', function(e) {
-            var marker = addMarker(e.latlng.lat, e.latlng.lng, "Selected Location");
+        // Core Validation & Sync Function
+        function validateAndSetLocation(lat, lng, displayName = null) {
+            clearError();
+            console.log(`Checking location: ${lat}, ${lng}`);
             
-            // When marker is dragged, update coordinates and reverse geocode
-            marker.on('dragend', function(event) {
-                var position = event.target.getLatLng();
-                document.getElementById('lat').value = position.lat;
-                document.getElementById('lng').value = position.lng;
-                reverseGeocode(position.lat, position.lng);
-            });
-            
-            // Reverse Geocode to update text input
-            reverseGeocode(e.latlng.lat, e.latlng.lng);
-        });
-        
-        // Reverse Geocode Function
-        function reverseGeocode(lat, lng) {
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
                 .then(res => res.json())
                 .then(data => {
-                    let city = data.address.city || data.address.town || data.address.village || "";
-                    if (city) {
-                        let input = document.getElementById('district-input');
-                        input.value = city;
+                    console.log("OSM Data:", data);
+                    const addr = data.address;
+                    if (!addr) {
+                        showError("Could not verify location. Please try again.");
+                        return;
                     }
+
+                    // Robust Validation: Check if 'Badulla' appears anywhere in the address details
+                    const addressText = Object.values(addr).join(' ').toLowerCase();
+                    const isBadulla = addressText.includes("badulla");
+
+                    if (isBadulla) {
+                        // Success
+                        let niceName = displayName;
+                        if (!niceName) {
+                            niceName = addr.village || addr.town || addr.city || addr.suburb || data.display_name.split(',')[0];
+                        }
+                        locInput.value = niceName;
+                        
+                        // 2. Add Marker
+                        const marker = addMarker(lat, lng, niceName);
+                        
+                        // 3. Add Drag Listener to NEW marker
+                        marker.on('dragend', function(e) {
+                            const pos = e.target.getLatLng();
+                            validateAndSetLocation(pos.lat, pos.lng);
+                        });
+                        
+                    } else {
+                        // Failed Validation
+                         console.warn("Validation failed. Address text:", addressText);
+                        showError("Location must be in Badulla District. Detected: " + (addr.state_district || addr.city || "Unknown Area"));
+                        
+                        // Clear invalid coordinates to prevent submission
+                        latInput.value = "";
+                        lngInput.value = "";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showError("Network error validating location.");
                 });
         }
-        
-        // Forward Geocode: When user types location, update map
-        let geocodeTimeout;
-        document.getElementById('district-input').addEventListener('input', function() {
-            clearTimeout(geocodeTimeout);
-            const location = this.value.trim();
-            
-            if (location.length < 3) return;
-            
-            geocodeTimeout = setTimeout(() => {
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.length > 0) {
-                            const lat = parseFloat(data[0].lat);
-                            const lng = parseFloat(data[0].lon);
-                            map.setView([lat, lng], 12);
-                            var marker = addMarker(lat, lng, location);
-                            
-                            // Enable dragging on geocoded marker
-                            marker.on('dragend', function(event) {
-                                var position = event.target.getLatLng();
-                                document.getElementById('lat').value = position.lat;
-                                document.getElementById('lng').value = position.lng;
-                                reverseGeocode(position.lat, position.lng);
-                            });
-                        }
-                    });
-            }, 800); // Debounce for 800ms
+
+        // Map Click
+        map.on('click', function(e) {
+            validateAndSetLocation(e.latlng.lat, e.latlng.lng);
         });
+
         
-        // Try to get user location
-        if (navigator.geolocation) {
-             navigator.geolocation.getCurrentPosition(function(pos) {
-                 var lat = pos.coords.latitude;
-                 var lng = pos.coords.longitude;
-                 map.setView([lat, lng], 12);
-                 var marker = addMarker(lat, lng, "Your Location");
-                 
-                 // Enable dragging on initial marker
-                 marker.on('dragend', function(event) {
-                     var position = event.target.getLatLng();
-                     document.getElementById('lat').value = position.lat;
-                     document.getElementById('lng').value = position.lng;
-                     reverseGeocode(position.lat, position.lng);
-                 });
-             });
-        }
-        
-        // --- Location Autocomplete Logic ---
-        const locInput = document.getElementById('district-input');
-        const locSuggestions = document.getElementById('location-suggestions');
-        let locDebounce;
-        
-        // Badulla Towns & Villages Data (Comprehensive Local Source)
+        // --- Autocomplete & Search ---
         const badullaTowns = [
             "Badulla", "Bandarawela", "Haputale", "Ella", "Welimada", "Mahiyanganaya", 
             "Diyatalawa", "Hali Ela", "Passara", "Girandurukotte", "Mirahawatte", 
@@ -449,9 +445,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "Uva Uduwara", "Uvaparanagama", "Wewatta", "Wineethagama", "Yalagamuwa", "Yalwela"
         ];
         
+        let locDebounce;
+        
         locInput.addEventListener('input', function() {
-            clearTimeout(locDebounce);
+            // Clear coords when user types to prevent mismatch
+            latInput.value = '';
+            lngInput.value = '';
             
+            clearTimeout(locDebounce);
+            clearError(); 
             const query = this.value.toLowerCase();
             locSuggestions.innerHTML = '';
             
@@ -460,24 +462,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 return;
             }
             
-            // 1. Local Search (Instant)
+            // 1. Local Search
             const localMatches = badullaTowns.filter(town => town.toLowerCase().includes(query));
-            
             renderLocationSuggestions(localMatches, []);
             
-            // 2. API Background Search (for smaller villages)
+            // 2. API Search
             locDebounce = setTimeout(() => {
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=lk&limit=5&addressdetails=1`)
+                // We restrict search to LK
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Badulla")}&countrycodes=lk&limit=5&addressdetails=1`)
                     .then(res => res.json())
                     .then(data => {
-                        // Filter for Badulla/Uva
-                        const apiMatches = data.filter(place => {
-                            const str = JSON.stringify(place).toLowerCase();
-                            return str.includes('badulla') || str.includes('uva');
-                        });
-                        
-                        // Combine unique results
-                        const uniqueApiMatches = apiMatches.filter(apiItem => {
+                        const uniqueApiMatches = data.filter(apiItem => {
                             let name = apiItem.address.village || apiItem.address.town || apiItem.display_name.split(',')[0];
                             return !localMatches.some(local => local.toLowerCase() === name.toLowerCase());
                         });
@@ -486,94 +481,95 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             renderLocationSuggestions(localMatches, uniqueApiMatches);
                         }
                     });
-            }, 500); // 500ms delay to avoid spamming API
+            }, 500);
+        });
+
+        // Auto-select on Enter
+        locInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (this.value.length > 2) {
+                    selectLocalLocation(this.value);
+                }
+            }
+        });
+
+        // Auto-select on Blur (if not already selected)
+        locInput.addEventListener('blur', function() {
+            setTimeout(() => {
+                // If coordinates are empty (meaning user typed but didn't select), try to resolve
+                if ((!latInput.value || !lngInput.value) && this.value.length > 2) {
+                    selectLocalLocation(this.value);
+                }
+            }, 300); // Small delay to allow click events on suggestions to fire first
         });
         
         function renderLocationSuggestions(localList, apiList) {
-            if (localList.length === 0 && apiList.length === 0) {
+             if (localList.length === 0 && apiList.length === 0) {
                 if(locSuggestions.innerHTML === '') locSuggestions.style.display = 'none';
                 return;
             }
-            
             locSuggestions.innerHTML = '';
             
-            // Render Local
-            localList.forEach(town => {
+            // Use a helper to create Item
+            function createItem(name, type, lat, lng) {
                 const div = document.createElement('div');
+                div.className = 'suggestion-item';
                 div.style.padding = '10px 15px';
                 div.style.borderBottom = '1px solid #f1f5f9';
                 div.style.cursor = 'pointer';
-                div.style.fontSize = '0.9rem';
-                div.style.fontWeight = '600'; // Bold for local (popular)
-                div.style.color = '#166534'; 
-                div.textContent = town + " (Badulla Dist.)"; 
-                div.onclick = () => selectLocationAndGeocode(town);
+                if(type === 'local') {
+                    div.style.fontWeight = '600'; 
+                    div.style.color = '#166534';
+                    div.textContent = name + " (Badulla Dist.)"; 
+                } else {
+                    div.textContent = name;
+                }
+                
+                div.onclick = () => {
+                    if (lat && lng) {
+                        selectLocation(name, lat, lng);
+                    } else {
+                        // Need to fetch coords for local item first
+                        selectLocalLocation(name);
+                    }
+                };
                 div.onmouseover = () => div.style.background = '#f0fdf4';
                 div.onmouseout = () => div.style.background = 'white';
-                locSuggestions.appendChild(div);
-            });
+                return div;
+            }
+
+            localList.forEach(town => locSuggestions.appendChild(createItem(town, 'local', null, null)));
             
-            // Render API
             apiList.forEach(place => {
-                const div = document.createElement('div');
-                div.style.padding = '10px 15px';
-                div.style.borderBottom = '1px solid #f1f5f9';
-                div.style.cursor = 'pointer';
-                div.style.fontSize = '0.9rem';
-                
-                // Display Name
-                let display = place.address.village || place.address.town || place.address.city || place.name;
-                if(place.address.state) display += `, ${place.address.state}`;
-                
-                div.textContent = display; 
-                div.onclick = () => selectLocationWithCoords(display, place.lat, place.lon);
-                div.onmouseover = () => div.style.background = '#f8fafc';
-                div.onmouseout = () => div.style.background = 'white';
-                locSuggestions.appendChild(div);
+                 let dp = place.address.village || place.address.town || place.address.city || place.name;
+                 if(place.address.state) dp += `, ${place.address.state}`;
+                 locSuggestions.appendChild(createItem(dp, 'api', parseFloat(place.lat), parseFloat(place.lon)));
             });
-            
+
             locSuggestions.style.display = 'block';
         }
         
-        function selectLocationAndGeocode(name) {
-            locInput.value = name;
+        function selectLocation(name, lat, lng) {
             locSuggestions.style.display = 'none';
-            
-            // Geocode the selected location and update map
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ", Badulla, Sri Lanka")}&limit=1`)
+             map.setView([lat, lng], 13);
+             validateAndSetLocation(lat, lng, name);
+        }
+
+        function selectLocalLocation(name) {
+             locSuggestions.style.display = 'none';
+             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ", Badulla, Sri Lanka")}&limit=1`)
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.length > 0) {
                         const lat = parseFloat(data[0].lat);
                         const lng = parseFloat(data[0].lon);
-                        map.setView([lat, lng], 12);
-                        var marker = addMarker(lat, lng, name);
-                        
-                        // Enable dragging on marker
-                        marker.on('dragend', function(event) {
-                            var position = event.target.getLatLng();
-                            document.getElementById('lat').value = position.lat;
-                            document.getElementById('lng').value = position.lng;
-                            reverseGeocode(position.lat, position.lng);
-                        });
+                        // Forward to main handler
+                        selectLocation(name, lat, lng);
+                    } else {
+                        showError("Could not find coordinates. Please drag the pin on map.");
                     }
                 });
-        }
-        
-        function selectLocationWithCoords(name, lat, lng) {
-            locInput.value = name;
-            locSuggestions.style.display = 'none';
-            
-            map.setView([lat, lng], 12);
-            var marker = addMarker(lat, lng, name);
-            
-            // Enable dragging on marker
-            marker.on('dragend', function(event) {
-                var position = event.target.getLatLng();
-                document.getElementById('lat').value = position.lat;
-                document.getElementById('lng').value = position.lng;
-                reverseGeocode(position.lat, position.lng);
-            });
         }
         
         // Close suggestions on click outside

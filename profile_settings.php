@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" || isset($_GET['action'])) {
         }
         
         $stmt = $conn->prepare("UPDATE expert SET name = ?, phone = ?, bio = ?, district = ?, qualification = ?, experience = ?, latitude = ?, longitude = ?, packages = ?, linkedin_url = ?, website_url = ? WHERE expert_id = ?");
-        $stmt->bind_param("ssssiddisssi", $name, $phone, $bio, $district, $qualification, $experience, $latitude, $longitude, $packages_json, $linkedin, $website, $user_id);
+        $stmt->bind_param("sssssiddsssi", $name, $phone, $bio, $district, $qualification, $experience, $latitude, $longitude, $packages_json, $linkedin, $website, $user_id);
         
         if ($stmt->execute()) {
              // Handle HIERARCHICAL Specializations
@@ -415,11 +415,12 @@ if ($role == 'buyer') {
                         <small style="color: #64748b; margin-bottom: 10px; display: block;">Enter your service area or drag the pin on the map to set your exact location.</small>
                         
                         <!-- Text Input with Autocomplete -->
-                        <div style="position: relative;">
+                        <div style="position: relative; z-index: 1001;">
                             <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
                             <input type="text" name="district" id="district-input" value="<?php echo htmlspecialchars($user['district'] ?? ''); ?>" required placeholder="e.g. Badulla" style="margin-bottom: 10px; padding-left: 35px;" autocomplete="off">
                             <div id="location-suggestions"></div>
                         </div>
+                        <div id="location-error" class="alert-error" style="display:none; padding: 10px; font-size: 0.9rem; margin-top: 5px;"></div>
 
                         <!-- Map -->
                         <div id="map"></div>
@@ -566,85 +567,163 @@ if ($role == 'buyer') {
             });
 
 
-            // --- Map Logic ---
-            var defaultLat = 6.9271; 
-            var defaultLng = 79.8612;
-            var map = L.map('map').setView([defaultLat, defaultLng], 8);
+            // --- Map & Location Logic ---
+            var savedLat = '<?php echo $user['latitude']; ?>';
+            var savedLng = '<?php echo $user['longitude']; ?>';
+            var startLat = savedLat ? parseFloat(savedLat) : 6.9847; 
+            var startLng = savedLng ? parseFloat(savedLng) : 81.0564;
+            var startZoom = savedLat ? 13 : 10;
+
+            var map = L.map('map').setView([startLat, startLng], startZoom);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
             var markers = L.layerGroup().addTo(map);
+            
+            const locInput = document.getElementById('district-input');
+            const locSuggestions = document.getElementById('location-suggestions');
+            const locError = document.getElementById('location-error'); // Must be added in HTML
+            const latInput = document.getElementById('lat');
+            const lngInput = document.getElementById('lng');
 
-            function addMarker(lat, lng, popupText = "Service Area") {
+            // Error Feedback
+            function showError(msg) {
+                if(locError) {
+                    locError.textContent = msg;
+                    locError.style.display = 'block';
+                }
+                locInput.style.borderColor = '#991b1b';
+            }
+            
+            function clearError() {
+                if(locError) locError.style.display = 'none';
+                locInput.style.borderColor = '#cbd5e1';
+            }
+
+            function addMarker(lat, lng, popupText) {
                 markers.clearLayers();
                 var marker = L.marker([lat, lng], {draggable: true});
                 marker.bindPopup(popupText).openPopup();
                 markers.addLayer(marker);
-                document.getElementById('lat').value = lat;
-                document.getElementById('lng').value = lng;
+                latInput.value = lat;
+                lngInput.value = lng;
                 return marker;
             }
             
-            var savedLat = '<?php echo $user['latitude']; ?>';
-            var savedLng = '<?php echo $user['longitude']; ?>';
-            var savedDistrict = <?php echo json_encode($user['district'] ?? ''); ?>;
-
+            // Init Marker
             if (savedLat && savedLng) {
-               addMarker(savedLat, savedLng, savedDistrict || "Your Location");
-               map.setView([savedLat, savedLng], 12);
-            }
-
-            map.on('click', function(e) {
-                var marker = addMarker(e.latlng.lat, e.latlng.lng, "Selected Location");
-                marker.on('dragend', function(event) {
-                    var position = event.target.getLatLng();
-                    updateCoordsAndReverseGeocode(position.lat, position.lng);
+               addMarker(startLat, startLng, <?php echo json_encode($user['district'] ?? 'Your Location'); ?>);
+               
+               // Add listener to initial marker too
+               markers.eachLayer(layer => {
+                    layer.on('dragend', function(e) {
+                        const pos = e.target.getLatLng();
+                        validateAndSetLocation(pos.lat, pos.lng);
+                    });
                 });
-                updateCoordsAndReverseGeocode(e.latlng.lat, e.latlng.lng);
-            });
-
-            function updateCoordsAndReverseGeocode(lat, lng) {
-                document.getElementById('lat').value = lat;
-                document.getElementById('lng').value = lng;
-                reverseGeocode(lat, lng);
             }
 
-            function reverseGeocode(lat, lng) {
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            // Core Validation & Sync Function
+            function validateAndSetLocation(lat, lng, displayName = null) {
+                clearError();
+                console.log(`Checking location: ${lat}, ${lng}`);
+                
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
                     .then(res => res.json())
                     .then(data => {
-                        let city = data.address.city || data.address.town || data.address.village || "";
-                        if (city) {
-                            document.getElementById('district-input').value = city;
+                        console.log("OSM Data:", data);
+                        const addr = data.address;
+                        
+                        if (!addr) {
+                             // Fallback if nominatim fails to give address but gives coords? 
+                             // Unlikely, usually means ocean or middle of nowhere.
+                             showError("Could not identify location.");
+                             return;
                         }
+
+                        // Robust Validation: Check if 'Badulla' appears anywhere in the address details (District, City, State, etc.)
+                        const addressText = Object.values(addr).join(' ').toLowerCase();
+                        const isBadulla = addressText.includes("badulla");
+
+                        if (isBadulla) {
+                            // Success
+                            let niceName = displayName;
+                            if (!niceName) {
+                                niceName = addr.village || addr.town || addr.city || addr.suburb || data.display_name.split(',')[0];
+                            }
+                            locInput.value = niceName;
+                            
+                            const marker = addMarker(lat, lng, niceName);
+                            
+                            marker.on('dragend', function(e) {
+                                const pos = e.target.getLatLng();
+                                validateAndSetLocation(pos.lat, pos.lng);
+                            });
+                            
+                        } else {
+                            // Failed Validation
+                            console.warn("Validation failed. Address text:", addressText);
+                            showError("Location must be in Badulla District. Detected: " + (addr.state_district || addr.city || "Unknown Area"));
+                            latInput.value = "";
+                            lngInput.value = "";
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err); 
+                        showError("Network error validating location.");
                     });
             }
 
-            // --- Location Autocomplete Logic ---
-            const locInput = document.getElementById('district-input');
-            const locSuggestions = document.getElementById('location-suggestions');
-            let locDebounce;
-            
-            const badullaTowns = ["Badulla", "Bandarawela", "Haputale", "Ella", "Welimada", "Mahiyanganaya", "Diyatalawa", "Hali Ela", "Passara", "Girandurukotte", "Mirahawatte", "Demodara", "Lunugala", "Kandaketiya", "Meegahakiula", "Soranathota", "Akkarasiyaya", "Aluketiyawa", "Aluttaramma", "Ambadandegama", "Ambagahawatta", "Ambagasdowa", "Amunumulla", "Arawa", "Arawakumbura", "Arawatta", "Atakiriya", "Baduluoya", "Ballaketuwa", "Bambarapana", "Beramada", "Beragala", "Bibilegama", "Bogahakumbura", "Boragas", "Boralanda", "Bowela", "Dambana", "Diganatenna", "Dikkapitiya", "Dimbulana", "Divulapelessa", "Dulgolla", "Egodawela", "Ettampitiya", "Galauda", "Galedanda", "Galporuyaya", "Gamewela", "Gawarawela", "Godunna", "Gurutalawa", "Haldummulla", "Hangunnawa", "Hebarawa", "Heeloya", "Helahalpe", "Helapupula", "Hewanakumbura", "Hingurukaduwa", "Hopton", "Idalgashinna", "Jangulla", "Kahataruppa", "Kalubululanda", "Kalugahakandura", "Kalupahana", "Kandegedara", "Kandepuhulpola", "Kebillawela", "Kendagolla", "Keppetipola", "Keselpotha", "Ketawatta", "Kiriwanagama", "Koslanda", "Kotamuduna", "Kuruwitenna", "Kuttiyagolla", "Landewela", "Liyangahawela", "Lunuwatta", "Madulsima", "Makulella", "Malgoda", "Maliyadda", "Mapakadawewa", "Maspanna", "Maussagolla", "Medawela Udukinda", "Medawelagama", "Metigahatenna", "Miriyabedda", "Miyanakandura", "Namunukula", "Narangala", "Nelumgama", "Nikapotha", "Nugatalawa", "Ohiya", "Pahalarathkinda", "Pallekiruwa", "Pangaragammana", "Pattiyagedara", "Pelagahatenna", "Perawella", "Pitapola", "Pitamaruwa", "Puhulpola", "Ratkarawwa", "Ridimaliyadda", "Rilpola", "Sirimalgoda", "Silmiyapura", "Soragune", "Sorabora Colony", "Spring Valley", "Taldena", "Tennapanguwa", "Timbirigaspitiya", "Uduhawara", "Uraniya", "Uva Deegalla", "Uva Karandagolla", "Uva Mawelagama", "Uva Paranagama", "Uva Tenna", "Uva Tissapura", "Uva Uduwara", "Uvaparanagama", "Wewatta", "Wineethagama", "Yalagamuwa", "Yalwela"];
+            map.on('click', function(e) {
+                validateAndSetLocation(e.latlng.lat, e.latlng.lng);
+            });
 
+            // --- Autocomplete & Search ---
+            const badullaTowns = [
+                "Badulla", "Bandarawela", "Haputale", "Ella", "Welimada", "Mahiyanganaya", 
+                "Diyatalawa", "Hali Ela", "Passara", "Girandurukotte", "Mirahawatte", 
+                "Demodara", "Lunugala", "Kandaketiya", "Meegahakiula", "Soranathota",
+                "Akkarasiyaya", "Aluketiyawa", "Aluttaramma", "Ambadandegama", "Ambagahawatta",
+                "Ambagasdowa", "Amunumulla", "Arawa", "Arawakumbura", "Arawatta", "Atakiriya",
+                "Baduluoya", "Ballaketuwa", "Bambarapana", "Beramada", "Beragala", "Bibilegama",
+                "Bogahakumbura", "Boragas", "Boralanda", "Bowela", "Dambana", "Diganatenna",
+                "Dikkapitiya", "Dimbulana", "Divulapelessa", "Dulgolla", "Egodawela", "Ettampitiya",
+                "Galauda", "Galedanda", "Galporuyaya", "Gamewela", "Gawarawela", "Godunna",
+                "Gurutalawa", "Haldummulla", "Hangunnawa", "Hebarawa", "Heeloya", "Helahalpe",
+                "Helapupula", "Hewanakumbura", "Hingurukaduwa", "Hopton", "Idalgashinna", "Jangulla",
+                "Kahataruppa", "Kalubululanda", "Kalugahakandura", "Kalupahana", "Kandegedara",
+                "Kandepuhulpola", "Kebillawela", "Kendagolla", "Keppetipola", "Keselpotha",
+                "Ketawatta", "Kiriwanagama", "Koslanda", "Kotamuduna", "Kuruwitenna", "Kuttiyagolla",
+                "Landewela", "Liyangahawela", "Lunuwatta", "Madulsima", "Makulella", "Malgoda",
+                "Maliyadda", "Mapakadawewa", "Maspanna", "Maussagolla", "Medawela Udukinda",
+                "Medawelagama", "Metigahatenna", "Miriyabedda", "Miyanakandura", "Namunukula",
+                "Narangala", "Nelumgama", "Nikapotha", "Nugatalawa", "Ohiya", "Pahalarathkinda",
+                "Pallekiruwa", "Pangaragammana", "Pattiyagedara", "Pelagahatenna", "Perawella",
+                "Pitapola", "Pitamaruwa", "Puhulpola", "Ratkarawwa", "Ridimaliyadda", "Rilpola",
+                "Sirimalgoda", "Silmiyapura", "Soragune", "Sorabora Colony", "Spring Valley",
+                "Taldena", "Tennapanguwa", "Timbirigaspitiya", "Uduhawara", "Uraniya", "Uva Deegalla",
+                "Uva Karandagolla", "Uva Mawelagama", "Uva Paranagama", "Uva Tenna", "Uva Tissapura",
+                "Uva Uduwara", "Uvaparanagama", "Wewatta", "Wineethagama", "Yalagamuwa", "Yalwela"
+            ];
+
+            let locDebounce;
             locInput.addEventListener('input', function() {
                 clearTimeout(locDebounce);
+                clearError();
                 const query = this.value.toLowerCase();
                 locSuggestions.innerHTML = '';
                 if(query.length < 2) { locSuggestions.style.display = 'none'; return; }
+                
                 const localMatches = badullaTowns.filter(town => town.toLowerCase().includes(query));
                 renderLocationSuggestions(localMatches, []);
+                
                 locDebounce = setTimeout(() => {
-                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=lk&limit=5&addressdetails=1`)
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Badulla")}&countrycodes=lk&limit=5&addressdetails=1`)
                         .then(res => res.json())
                         .then(data => {
-                            const apiMatches = data.filter(place => {
-                                const str = JSON.stringify(place).toLowerCase();
-                                return str.includes('badulla') || str.includes('uva');
-                            });
-                            const uniqueApiMatches = apiMatches.filter(apiItem => {
+                            const uniqueApiMatches = data.filter(apiItem => {
                                 let name = apiItem.address.village || apiItem.address.town || apiItem.display_name.split(',')[0];
                                 return !localMatches.some(local => local.toLowerCase() === name.toLowerCase());
                             });
@@ -659,60 +738,53 @@ if ($role == 'buyer') {
                     return;
                 }
                 locSuggestions.innerHTML = '';
-                localList.forEach(town => {
+                
+                function createItem(name, type, lat, lng) {
                     const div = document.createElement('div');
+                    div.className = 'suggestion-item';
                     div.style.padding = '10px 15px'; div.style.borderBottom = '1px solid #f1f5f9'; div.style.cursor = 'pointer';
-                    div.style.fontSize = '0.9rem'; div.style.fontWeight = '600'; div.style.color = '#166534';
-                    div.textContent = town + " (Badulla Dist.)";
-                    div.onclick = () => selectLocationAndGeocode(town);
+                    if(type === 'local') {
+                        div.style.fontWeight = '600'; div.style.color = '#166534';
+                        div.textContent = name + " (Badulla Dist.)";
+                    } else {
+                        div.textContent = name;
+                    }
+                    div.onclick = () => {
+                         if (lat && lng) selectLocation(name, lat, lng);
+                         else selectLocalLocation(name);
+                    };
                     div.onmouseover = () => div.style.background = '#f0fdf4';
                     div.onmouseout = () => div.style.background = 'white';
-                    locSuggestions.appendChild(div);
-                });
+                    return div;
+                }
+                
+                localList.forEach(town => locSuggestions.appendChild(createItem(town, 'local', null, null)));
                 apiList.forEach(place => {
-                    const div = document.createElement('div');
-                    div.style.padding = '10px 15px'; div.style.borderBottom = '1px solid #f1f5f9'; div.style.cursor = 'pointer';
-                    div.style.fontSize = '0.9rem';
-                    let display = place.address.village || place.address.town || place.address.city || place.name;
-                    if(place.address.state) display += `, ${place.address.state}`;
-                    div.textContent = display;
-                    div.onclick = () => selectLocationWithCoords(display, place.lat, place.lon);
-                    div.onmouseover = () => div.style.background = '#f8fafc';
-                    div.onmouseout = () => div.style.background = 'white';
-                    locSuggestions.appendChild(div);
+                    let dp = place.address.village || place.address.town || place.address.city || place.name;
+                    if(place.address.state) dp += `, ${place.address.state}`;
+                    locSuggestions.appendChild(createItem(dp, 'api', parseFloat(place.lat), parseFloat(place.lon)));
                 });
                 locSuggestions.style.display = 'block';
             }
 
-            function selectLocationAndGeocode(name) {
-                locInput.value = name;
+            function selectLocation(name, lat, lng) {
+                locSuggestions.style.display = 'none';
+                map.setView([lat, lng], 13);
+                validateAndSetLocation(lat, lng, name);
+            }
+            
+            function selectLocalLocation(name) {
                 locSuggestions.style.display = 'none';
                 fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ", Badulla, Sri Lanka")}&limit=1`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.length > 0) {
-                            const lat = parseFloat(data[0].lat);
-                            const lng = parseFloat(data[0].lon);
-                            map.setView([lat, lng], 12);
-                            var marker = addMarker(lat, lng, name);
-                            marker.on('dragend', function(event) {
-                                var position = event.target.getLatLng();
-                                updateCoordsAndReverseGeocode(position.lat, position.lng);
-                            });
-                        }
-                    });
-            }
-
-            function selectLocationWithCoords(name, lat, lng) {
-                locInput.value = name;
-                locSuggestions.style.display = 'none';
-                map.setView([lat, lng], 12);
-                var marker = addMarker(lat, lng, name);
-                document.getElementById('lat').value = lat;
-                document.getElementById('lng').value = lng;
-                marker.on('dragend', function(event) {
-                    var position = event.target.getLatLng();
-                    updateCoordsAndReverseGeocode(position.lat, position.lng);
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lng = parseFloat(data[0].lon);
+                        selectLocation(name, lat, lng);
+                    } else {
+                        showError("Could not find coordinates.");
+                    }
                 });
             }
 
@@ -738,6 +810,17 @@ if ($role == 'buyer') {
                 `;
                 packagesContainer.appendChild(row);
             }
+
+            // Prevent Submission if Invalid Location
+            document.querySelector('form').addEventListener('submit', function(e) {
+                if (latInput.value === '' || lngInput.value === '') {
+                    e.preventDefault();
+                    showError("Please select a valid location inside Badulla District.");
+                    locInput.focus();
+                    /* Scroll to error */
+                    locInput.scrollIntoView({behavior: "smooth", block: "center"});
+                }
+            });
 
             // Load existing
             if (existingPackages.length > 0) {
