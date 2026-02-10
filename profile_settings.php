@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" || isset($_GET['action'])) {
         $name = $_POST['name'];
         $phone = $_POST['phone'];
         $bio = $_POST['bio'] ?? '';
-        $location = $_POST['location'];
+
         
         // Photo Upload for Buyer
         if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] == 0) {
@@ -55,8 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" || isset($_GET['action'])) {
             }
         }
 
-        $stmt = $conn->prepare("UPDATE buyer SET name = ?, phone = ?, bio = ?, location = ? WHERE buyer_id = ?");
-        $stmt->bind_param("ssssi", $name, $phone, $bio, $location, $user_id);
+        $stmt = $conn->prepare("UPDATE buyer SET name = ?, phone = ?, bio = ? WHERE buyer_id = ?");
+        $stmt->bind_param("sssi", $name, $phone, $bio, $user_id);
         
         if ($stmt->execute()) {
              // Account & Notif Settings
@@ -316,13 +316,7 @@ if ($role == 'buyer') {
                 </div>
 
                 <?php if ($role == 'buyer'): ?>
-                    <div class="form-group">
-                        <label>Location</label>
-                        <div style="position: relative;">
-                            <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                            <input type="text" name="location" value="<?php echo htmlspecialchars($user['location'] ?? ''); ?>" style="padding-left: 35px;">
-                        </div>
-                    </div>
+
 
                     <hr style="margin: 40px 0; border: none; border-top: 2px solid #f1f5f9;">
 

@@ -5,6 +5,28 @@ require_once 'db.php';
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $lat = isset($_GET['lat']) ? floatval($_GET['lat']) : 0;
 $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
+$location_text = isset($_GET['location']) ? trim($_GET['location']) : '';
+
+// --- SERVER-SIDE GEOCODING FALLBACK ---
+// If we have a location name but no coordinates, try to get them once via API
+if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 0 || $lng == 0)) {
+    $geo_url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($location_text . ", Sri Lanka") . "&limit=1";
+    $opts = [
+        "http" => [
+            "method" => "GET",
+            "header" => "User-Agent: AutoChekSearch/1.0\r\n"
+        ]
+    ];
+    $context = stream_context_create($opts);
+    $geo_data_text = @file_get_contents($geo_url, false, $context);
+    if ($geo_data_text) {
+        $geo_data = json_decode($geo_data_text, true);
+        if (isset($geo_data[0])) {
+            $lat = floatval($geo_data[0]['lat']);
+            $lng = floatval($geo_data[0]['lon']);
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -64,8 +86,11 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
             </div>
 
             <div style="flex: 1; min-width: 200px; max-width: 300px; display: flex; gap: 10px; position: relative;">
-                <input type="text" id="location-input" name="location" placeholder="Location (e.g. Badulla)" value="<?php echo htmlspecialchars(isset($_GET['location']) ? $_GET['location'] : ''); ?>" style="flex: 1; min-width: 0; margin: 0;" autocomplete="off">
-                 <div id="location-suggestions" style="position: absolute; top: 100%; left: 0; right: 45px; background: white; border: 1px solid #cbd5e1; border-top: none; border-radius: 0 0 8px 8px; z-index: 1000; display: none; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
+                <div style="position: relative; width: 100%;">
+                    <input type="text" id="location-input" name="location" placeholder="Location (e.g. Badulla)" value="<?php echo htmlspecialchars(isset($_GET['location']) ? $_GET['location'] : ''); ?>" style="width: 100%; padding-right: 40px; margin: 0;" autocomplete="off">
+                    <i class="ph ph-crosshair" id="locate-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #64748b; cursor: pointer; font-size: 1.2rem;" title="Use Current Location"></i>
+                </div>
+                 <div id="location-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #cbd5e1; border-top: none; border-radius: 0 0 8px 8px; z-index: 1000; display: none; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
 
             </div>
 
@@ -163,7 +188,7 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
         ];
 
         // --- LOCATION FILTERING (Strict) ---
-        $location_text = isset($_GET['location']) ? trim($conn->real_escape_string($_GET['location'])) : '';
+        $location_text_escaped = $conn->real_escape_string($location_text);
         $target_district = '';
 
         // Check if location is in Badulla list
@@ -183,20 +208,15 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
         $having_clause = "";
 
         if ($lat != 0 && $lng != 0) {
-             // GPS: Filter within 15km OR District
-             // We use HAVING because 'distance' is a calculated alias
-             if (!empty($target_district)) {
-                 $having_clause = " HAVING (distance <= 50 OR district LIKE '%$target_district%') ";
-             } else {
-                 $having_clause = " HAVING distance <= 50 ";
-             }
+             // GPS: No strict limit, we want to show 'Nearby' vs 'Other' sections
+             $having_clause = ""; 
         } elseif (!empty($location_text)) {
-             // Text Only: Filter by District
-             // If we mapped it to Badulla, show all Badulla
+             // Text Only: Filter by District OR Location Text match in District or Bio
+             $target_district_escaped = $conn->real_escape_string($target_district);
              if (!empty($target_district)) {
-                 $conditions[] = "(e.district LIKE '%$target_district%' OR e.bio LIKE '%$location_text%')";
+                 $conditions[] = "(e.district LIKE '%$target_district_escaped%' OR e.district LIKE '%$location_text_escaped%' OR e.bio LIKE '%$location_text_escaped%')";
              } else {
-                 $conditions[] = "(e.district LIKE '%$location_text%' OR e.bio LIKE '%$location_text%')";
+                 $conditions[] = "(e.district LIKE '%$location_text_escaped%' OR e.bio LIKE '%$location_text_escaped%')";
              }
         }
         
@@ -246,8 +266,8 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
         $result = $conn->query($sql);
 
         // Categorize results
-        $nearby_experts = [];
-        $district_experts = [];
+        $nearby_experts = [];   // <= 15km
+        $other_experts = [];    // > 15km or no GPS
 
         if ($result && $result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
@@ -256,11 +276,11 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                     if ($row['distance'] <= 15) {
                         $nearby_experts[] = $row;
                     } else {
-                        $district_experts[] = $row;
+                        $other_experts[] = $row;
                     }
                 } else {
-                    // If no GPS, put all in district experts
-                    $district_experts[] = $row;
+                    // If no GPS, put all in other experts
+                    $other_experts[] = $row;
                 }
             }
         }
@@ -282,15 +302,13 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                             <h3 style="margin: 0; font-size: 1.25rem;">
                                 <?php echo htmlspecialchars($row['name']); ?> 
                                 <?php if (isset($row['distance']) && $row['distance'] !== null): ?>
-                                    <?php if ($row['distance'] > 15): ?>
-                                        <span class="distance-badge" style="background: #fff7ed; color: #c2410c;">District Other Expert</span>
-                                    <?php else: ?>
-                                        <span class="distance-badge"><?php echo round($row['distance'], 1); ?> km away</span>
-                                    <?php endif; ?>
-                                <?php elseif (!empty($location_text) && stripos($row['district'], $location_text) !== false): ?>
-                                     <span class="distance-badge" style="background: #f0fdf4; color: #15803d;">Service Area Match</span>
-                                <?php elseif (!empty($target_district) && stripos($row['district'], $target_district) !== false): ?>
-                                     <span class="distance-badge" style="background: #fff7ed; color: #c2410c;">District Expert</span>
+                                    <span class="distance-badge" style="<?php echo ($row['distance'] > 15) ? 'background: #fff7ed; color: #c2410c;' : ''; ?>">
+                                        <i class="ph ph-map-pin"></i> <?php echo round($row['distance'], 1); ?> km away
+                                    </span>
+                                <?php elseif (!empty($location_text)): ?>
+                                     <span class="distance-badge" style="background: #f1f5f9; color: #64748b;">
+                                        <i class="ph ph-warning-circle"></i> Service Area: <?php echo htmlspecialchars($row['district']); ?>
+                                     </span>
                                 <?php endif; ?>
                             </h3>
                             <div class="expert-meta" style="margin: 0; font-weight: 500;">
@@ -330,35 +348,27 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
         }
 
         // Display Results
-        if (count($nearby_experts) > 0 || count($district_experts) > 0) {
-            // Display Nearby Experts Section
+        if (count($nearby_experts) > 0 || count($other_experts) > 0) {
+            // 1. Nearby Experts Section
             if (count($nearby_experts) > 0) {
                 ?>
                 <div style="margin-bottom: 40px;">
                     <h3 style="color: #166534; font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #dcfce7;">
                         <i class="ph-fill ph-map-pin"></i> Nearby Experts (Within 15km)
                     </h3>
-                    <?php
-                    foreach ($nearby_experts as $expert) {
-                        renderExpertCard($expert, $location_text, $target_district);
-                    }
-                    ?>
+                    <?php foreach ($nearby_experts as $expert) renderExpertCard($expert, $location_text, $target_district); ?>
                 </div>
                 <?php
             }
 
-            // Display Other District Experts Section
-            if (count($district_experts) > 0) {
+            // 2. Other District Experts Section
+            if (count($other_experts) > 0) {
                 ?>
                 <div style="margin-bottom: 40px;">
                     <h3 style="color: #c2410c; font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #fff7ed;">
                         <i class="ph ph-buildings"></i> Other District Experts
                     </h3>
-                    <?php
-                    foreach ($district_experts as $expert) {
-                        renderExpertCard($expert, $location_text, $target_district);
-                    }
-                    ?>
+                    <?php foreach ($other_experts as $expert) renderExpertCard($expert, $location_text, $target_district); ?>
                 </div>
                 <?php
             }
@@ -484,17 +494,23 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                                     div.textContent = item.display;
                                     
                                     div.onclick = () => {
-                                        searchInput.value = item.name;
-                                        suggestionsBox.style.display = 'none';
+                                        const currentLoc = document.getElementById('location-input').value;
+                                        const currentLat = document.getElementById('search-lat').value;
+                                        const currentLng = document.getElementById('search-lng').value;
+                                        let baseRedirect = '';
                                         
-                                        // Update hidden/visible selects and submit
                                         if (item.type === 'category') {
-                                            window.location.href = `?category_id=${item.id}&search=${encodeURIComponent(item.name)}`;
+                                            baseRedirect = `?category_id=${item.id}&search=${encodeURIComponent(item.name)}`;
                                         } else if (item.type === 'brand') {
-                                            window.location.href = `?brand_id=${item.id}&search=${encodeURIComponent(item.name)}`;
+                                            baseRedirect = `?brand_id=${item.id}&search=${encodeURIComponent(item.name)}`;
                                         } else if (item.type === 'model') {
-                                            window.location.href = `?model_id=${item.id}&search=${encodeURIComponent(item.name)}`;
+                                            baseRedirect = `?model_id=${item.id}&search=${encodeURIComponent(item.name)}`;
                                         }
+
+                                        if (currentLoc) {
+                                            baseRedirect += `&location=${encodeURIComponent(currentLoc)}&lat=${currentLat}&lng=${currentLng}`;
+                                        }
+                                        window.location.href = baseRedirect;
                                     };
                                     suggestionsBox.appendChild(div);
                                 });
@@ -516,71 +532,37 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
             // Geocoding Logic for Location Search
             const searchForm = document.querySelector('.search-box');
             
-            // Add submit handler to geocode location if needed
             searchForm.addEventListener('submit', function(e) {
-                const locationValue = document.getElementById('location-input').value.trim();
-                const latValue = parseFloat(document.getElementById('search-lat').value);
-                const lngValue = parseFloat(document.getElementById('search-lng').value);
+                const locationInput = document.getElementById('location-input');
+                const locationValue = locationInput.value.trim();
+                const latInput = document.getElementById('search-lat');
+                const lngInput = document.getElementById('search-lng');
+                const latValue = parseFloat(latInput.value);
+                const lngValue = parseFloat(lngInput.value);
                 
                 // If location is entered but coordinates are missing or zero
-                if (locationValue && (!latValue || !lngValue || (latValue === 0 && lngValue === 0))) {
+                if (locationValue && locationValue !== "Current Location" && (!latValue || !lngValue || (latValue === 0 && lngValue === 0))) {
                     e.preventDefault(); // Stop form submission
                     
                     // Show loading indicator
                     const submitBtn = searchForm.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-                    submitBtn.textContent = 'Locating...';
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Locating...';
                     submitBtn.disabled = true;
                     
-                    // Set a timeout to proceed with search even if geocoding is slow
-                    const timeoutId = setTimeout(() => {
-                        console.log('Geocoding timeout - proceeding with search anyway');
-                        submitBtn.textContent = originalText;
-                        submitBtn.disabled = false;
-                        searchForm.submit();
-                    }, 5000); // 5 second timeout
-                    
                     // Geocode the location
-                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationValue + ', Badulla, Sri Lanka')}&limit=1`)
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationValue + ', Sri Lanka')}&limit=1`)
                         .then(res => res.json())
                         .then(data => {
                             if (data && data.length > 0) {
-                                document.getElementById('search-lat').value = data[0].lat;
-                                document.getElementById('search-lng').value = data[0].lon;
+                                latInput.value = data[0].lat;
+                                lngInput.value = data[0].lon;
                                 console.log(`Geocoded ${locationValue}: ${data[0].lat}, ${data[0].lon}`);
-                                clearTimeout(timeoutId);
-                                submitBtn.textContent = originalText;
-                                submitBtn.disabled = false;
-                                searchForm.submit();
-                            } else {
-                                // Fallback: try without district specification
-                                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationValue + ', Sri Lanka')}&limit=1`)
-                                    .then(res => res.json())
-                                    .then(fallbackData => {
-                                        if (fallbackData && fallbackData.length > 0) {
-                                            document.getElementById('search-lat').value = fallbackData[0].lat;
-                                            document.getElementById('search-lng').value = fallbackData[0].lon;
-                                            console.log(`Geocoded ${locationValue} (fallback): ${fallbackData[0].lat}, ${fallbackData[0].lon}`);
-                                        }
-                                        clearTimeout(timeoutId);
-                                        submitBtn.textContent = originalText;
-                                        submitBtn.disabled = false;
-                                        searchForm.submit();
-                                    })
-                                    .catch(err => {
-                                        console.error('Fallback geocoding error:', err);
-                                        clearTimeout(timeoutId);
-                                        submitBtn.textContent = originalText;
-                                        submitBtn.disabled = false;
-                                        searchForm.submit();
-                                    });
                             }
+                            searchForm.submit();
                         })
                         .catch(err => {
                             console.error('Geocoding error:', err);
-                            clearTimeout(timeoutId);
-                            submitBtn.textContent = originalText;
-                            submitBtn.disabled = false;
                             searchForm.submit(); // Proceed anyway
                         });
                 }
@@ -764,6 +746,46 @@ $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
                 }
             });
 
+
+            // --- Live Location Logic ---
+            const locateBtn = document.getElementById('locate-btn');
+            
+            locateBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser.');
+                    return;
+                }
+
+                // UI Feedback
+                locateBtn.style.color = '#166534';
+                locateBtn.classList.add('ph-spinner', 'ph-spin');
+                locateBtn.classList.remove('ph-crosshair');
+                document.getElementById('location-input').placeholder = "Locating...";
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        document.getElementById('search-lat').value = lat;
+                        document.getElementById('search-lng').value = lng;
+                        document.getElementById('location-input').value = "Current Location";
+                        
+                        // Submit immediately
+                        document.querySelector('.search-box').submit();
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('Unable to retrieve your location. Please check your browser permissions.');
+                        
+                        // Reset UI
+                        locateBtn.style.color = '#64748b';
+                        locateBtn.classList.remove('ph-spinner', 'ph-spin');
+                        locateBtn.classList.add('ph-crosshair');
+                        document.getElementById('location-input').placeholder = "Location (e.g. Badulla)";
+                    }
+                );
+            });
 
         };
     </script>

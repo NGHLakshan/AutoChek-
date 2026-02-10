@@ -6,11 +6,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $phone = $_POST['phone'];
-    $location = $_POST['location'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO buyer (name, email, phone, location, password) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $name, $email, $phone, $location, $password);
+    $stmt = $conn->prepare("INSERT INTO buyer (name, email, phone, password) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $name, $email, $phone, $password);
 
     if ($stmt->execute()) {
         header("Location: login.php?registered=1");
@@ -82,13 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" name="phone" required placeholder="07x xxxxxxx" style="padding-left: 35px;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Location</label>
-                     <div style="position: relative;">
-                         <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                        <input type="text" name="location" required placeholder="City/Town" style="padding-left: 35px;">
-                    </div>
-                </div>
+
                 <div class="form-group">
                     <label>Password</label>
                      <div style="position: relative;">
