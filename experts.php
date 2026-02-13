@@ -7,23 +7,50 @@ $lat = isset($_GET['lat']) ? floatval($_GET['lat']) : 0;
 $lng = isset($_GET['lng']) ? floatval($_GET['lng']) : 0;
 $location_text = isset($_GET['location']) ? trim($_GET['location']) : '';
 
+// --- OPTIMIZATION: LOCAL TOWN LOOKUP ---
+$town_coords = [
+    "Badulla" => ["lat" => 6.9934, "lng" => 81.0550],
+    "Bandarawela" => ["lat" => 6.8310, "lng" => 80.9984],
+    "Haputale" => ["lat" => 6.7686, "lng" => 80.9576],
+    "Ella" => ["lat" => 6.8761, "lng" => 81.0475],
+    "Welimada" => ["lat" => 6.9031, "lng" => 80.9142],
+    "Mahiyanganaya" => ["lat" => 7.3204, "lng" => 81.0028],
+    "Diyatalawa" => ["lat" => 6.8189, "lng" => 80.9592],
+    "Hali Ela" => ["lat" => 6.9531, "lng" => 81.0315],
+    "Passara" => ["lat" => 7.0006, "lng" => 81.1444],
+    "Colombo" => ["lat" => 6.9271, "lng" => 79.8612]
+];
+
 // --- SERVER-SIDE GEOCODING FALLBACK ---
-// If we have a location name but no coordinates, try to get them once via API
 if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 0 || $lng == 0)) {
-    $geo_url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($location_text . ", Sri Lanka") . "&limit=1";
-    $opts = [
-        "http" => [
-            "method" => "GET",
-            "header" => "User-Agent: AutoChekSearch/1.0\r\n"
-        ]
-    ];
-    $context = stream_context_create($opts);
-    $geo_data_text = @file_get_contents($geo_url, false, $context);
-    if ($geo_data_text) {
-        $geo_data = json_decode($geo_data_text, true);
-        if (isset($geo_data[0])) {
-            $lat = floatval($geo_data[0]['lat']);
-            $lng = floatval($geo_data[0]['lon']);
+    // 1. Check Local Lookup
+    $found_locally = false;
+    foreach ($town_coords as $name => $coords) {
+        if (stripos($location_text, $name) !== false) {
+            $lat = $coords['lat'];
+            $lng = $coords['lng'];
+            $found_locally = true;
+            break;
+        }
+    }
+
+    // 2. External API (only if not found locally)
+    if (!$found_locally) {
+        $geo_url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($location_text . ", Sri Lanka") . "&limit=1";
+        $opts = [
+            "http" => [
+                "timeout" => 2, // Fail fast
+                "header" => "User-Agent: AutoChekSearch/1.0\r\n"
+            ]
+        ];
+        $context = stream_context_create($opts);
+        $geo_data_text = @file_get_contents($geo_url, false, $context);
+        if ($geo_data_text) {
+            $geo_data = json_decode($geo_data_text, true);
+            if (isset($geo_data[0])) {
+                $lat = floatval($geo_data[0]['lat']);
+                $lng = floatval($geo_data[0]['lon']);
+            }
         }
     }
 }
@@ -39,23 +66,320 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
     <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #d1fae5;
+            --secondary: #64748b;
+            --accent: #8b5cf6;
+            --bg-body: #f8fafc;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        body { 
+            background: var(--bg-body);
+            background-image: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0, transparent 50%), 
+                              radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.05) 0, transparent 50%);
+            min-height: 100vh;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent),
+                        radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.05), transparent),
+                        white;
+            padding: 120px 0 100px;
+            color: var(--text-dark);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: -60px;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(16, 185, 129, 0.15) 0, transparent 70%);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto 48px;
+            line-height: 1.6;
+        }
+
+        /* Premium Search Bar */
+        .search-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box { 
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 20px; 
+            border: 1px solid #e2e8f0;
+            box-shadow: var(--card-shadow);
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto;
+            gap: 0;
+            align-items: center;
+        }
+
+        .search-field {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            transition: all 0.2s ease;
+            border-radius: 12px;
+            min-height: 54px;
+        }
+
+        .search-field:hover {
+            background: rgba(16, 185, 129, 0.03);
+        }
+
+        .search-field i.ph {
+            position: absolute;
+            left: 18px;
+            color: #64748b;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .search-box input { 
+            width: 100%;
+            padding: 14px 15px 14px 50px !important;
+            border: none !important;
+            background: transparent !important;
+            border-radius: 12px !important;
+            font-size: 1rem !important;
+            color: #1e293b !important;
+            transition: all 0.2s ease !important;
+            margin: 0 !important;
+        }
+
+        .search-box input:focus {
+            background: white !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px var(--primary-light) !important;
+        }
+
+        #locate-btn {
+            position: absolute;
+            right: 12px;
+            left: auto !important;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border-radius: 8px;
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            pointer-events: auto !important;
+            z-index: 10;
+        }
+
+        #locate-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .btn-search {
+            background: var(--primary);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-left: 12px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-search:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .search-suggestions-box {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            width: 450px;
+            background: white;
+            border-radius: 16px;
+            z-index: 1000;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e2e8f0;
+            animation: slideUpFade 0.3s ease;
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-locating {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; color: var(--primary); }
+            100% { opacity: 0.6; }
+        }
+
+        .locating-active {
+            animation: pulse-locating 1.5s infinite !important;
+        }
+
+        /* Results Display */
+        .results-section {
+            padding: 40px 0;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .result-group-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin: 40px 0 20px;
+        }
+
+        .result-group-title i {
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 8px;
+            border-radius: 10px;
+        }
+
         .expert-card { 
             background: white; 
-            border-radius: 12px; 
+            border-radius: 20px; 
             padding: 24px; 
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); 
-            display: block; 
+            box-shadow: var(--card-shadow);
             margin-bottom: 24px;
             border: 1px solid #f1f5f9;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInSlideUp 0.6s ease-out forwards;
         }
-        .expert-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
-        .expert-info h3 { margin: 0 0 5px 0; color: #1e293b; }
-        .expert-meta { color: #64748b; font-size: 0.9rem; margin-bottom: 10px; }
-        .distance-badge { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-left: 10px; }
-        .search-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin: 30px 0; display: flex; gap: 30px; }
-        .search-box input, .search-box select { flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; }
-        .search-box button { padding: 12px 30px; }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .expert-card:hover { 
+            transform: translateY(-5px) scale(1.01); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-light);
+        }
+
+        .expert-photo-container {
+            width: 90px;
+            height: 90px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #f8fafc;
+            border: 3px solid white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+        }
+
+        .expert-photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .distance-tag {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .exp-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .btn-view {
+            background: var(--primary);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-view:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        /* Loading Skeleton Mockup */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body>
@@ -76,53 +400,47 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
         if($cats_result) while($c = $cats_result->fetch_assoc()) $categories[] = $c;
         ?>
 
-        <form action="" method="GET" class="search-box" style="flex-wrap: wrap;" autocomplete="off">
-            <input type="hidden" name="lat" id="search-lat" value="<?php echo $lat; ?>">
-            <input type="hidden" name="lng" id="search-lng" value="<?php echo $lng; ?>">
+    <div class="hero-section">
+        <div class="container" style="max-width: 900px;">
+            <h1 class="hero-title">Expert <span>Vehicle</span> Inspection</h1>
+            <p class="hero-subtitle">Find certified professionals to inspect your next vehicle. Local experts, thorough reports, total peace of mind.</p>
             
-            <div style="flex: 1; min-width: 200px; position: relative;">
-                <input type="text" id="main-search" name="search" placeholder="Search for any vehicle (e.g. 'Toyota', 'Benz', 'Bike')..." value="<?php echo htmlspecialchars($search); ?>" style="width: 100%; margin: 0;">
-                <div id="search-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #cbd5e1; border-top: none; border-radius: 0 0 8px 8px; z-index: 1000; display: none; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
+            <div class="search-container">
+                <form action="" method="GET" class="search-box" autocomplete="off">
+                    <input type="hidden" name="lat" id="search-lat" value="<?php echo $lat; ?>">
+                    <input type="hidden" name="lng" id="search-lng" value="<?php echo $lng; ?>">
+                    
+                    <div class="search-field">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" id="main-search" name="search" placeholder="Vehicle (e.g. Toyota, Benz...)" value="<?php echo htmlspecialchars($search); ?>">
+                        <div id="search-suggestions" class="search-suggestions-box"></div>
+                    </div>
+
+                    <div style="width: 1px; height: 35px; background: #e2e8f0; margin: 0 5px;"></div>
+
+                    <div class="search-field">
+                        <i class="ph ph-map-pin"></i>
+                        <input type="text" id="location-input" name="location" placeholder="Location (e.g. Badulla)" value="<?php echo htmlspecialchars(isset($_GET['location']) ? $_GET['location'] : ''); ?>">
+                        <i class="ph ph-crosshair" id="locate-btn" title="Current Location"></i>
+                        <div id="location-suggestions" class="search-suggestions-box"></div>
+                    </div>
+
+                    <button type="submit" class="btn-search">
+                        <span>Search</span>
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+                    
+                    <!-- Hidden filters for backwards compat -->
+                    <select name="category_id" id="category_select" style="display:none;"><option value="0"></option></select>
+                    <select name="brand_id" id="brand_select" style="display:none;"><option value="0"></option></select>
+                    <select name="model_id" id="model_select" style="display:none;"><option value="0"></option></select>
+                </form>
             </div>
+        </div>
+    </div>
 
-            <div style="flex: 1; min-width: 200px; max-width: 300px; display: flex; gap: 10px; position: relative;">
-                <div style="position: relative; width: 100%;">
-                    <input type="text" id="location-input" name="location" placeholder="Location (e.g. Badulla)" value="<?php echo htmlspecialchars(isset($_GET['location']) ? $_GET['location'] : ''); ?>" style="width: 100%; padding-right: 40px; margin: 0;" autocomplete="off">
-                    <i class="ph ph-crosshair" id="locate-btn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #64748b; cursor: pointer; font-size: 1.2rem;" title="Use Current Location"></i>
-                </div>
-                 <div id="location-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #cbd5e1; border-top: none; border-radius: 0 0 8px 8px; z-index: 1000; display: none; max-height: 300px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
-
-            </div>
-
-            <div style="min-width: 130px; display: none;"> <!-- Hidden as we want to drive via search but kept for compatibility -->
-                <select name="category_id" id="category_select" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    <option value="0">Type</option>
-                    <?php foreach($categories as $cat): ?>
-                        <option value="<?php echo $cat['category_id']; ?>" <?php if($category_id == $cat['category_id']) echo 'selected'; ?>>
-                            <?php echo htmlspecialchars($cat['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div style="min-width: 130px; display: none;">
-                <select name="brand_id" id="brand_select" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    <option value="0">Brand</option>
-                </select>
-            </div>
-
-            <div style="min-width: 130px; display: none;">
-                 <select name="model_id" id="model_select" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px;">
-                    <option value="0">Model</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
-
-        <div id="location-msg" style="margin-bottom: 20px; color: #64748b; font-size: 0.9rem;"></div>
-
-        <h2>Trusted Vehicle Experts</h2>
+    <div class="container results-section">
+        <div id="location-msg" style="margin-bottom: 20px; color: #64748b; font-size: 0.9rem; text-align: center;"></div>
 
         <?php
         // HIERARCHICAL MATCHING LOGIC
@@ -241,12 +559,18 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
             $sql .= " AND " . implode(' AND ', $conditions);
         }
 
-        // Text Search Filter
-        // We apply text search alongside vehicle ID filters to allow refining (e.g. Brand="Toyota" + Search="Corolla")
+        // Text Search Filter (Word-based AND matching)
         if (!empty($search)) {
-            $s = $conn->real_escape_string($search);
-            // Search name/qual/bio/vehicle names
-            $sql .= " AND (e.qualification LIKE '%$s%' OR e.name LIKE '%$s%' OR e.bio LIKE '%$s%' OR vc.name LIKE '%$s%' OR vb.name LIKE '%$s%' OR vm.name LIKE '%$s%')";
+            $words = explode(' ', $search);
+            $word_conditions = [];
+            foreach ($words as $word) {
+                $w = $conn->real_escape_string(trim($word));
+                if (empty($w)) continue;
+                $word_conditions[] = "(e.qualification LIKE '%$w%' OR e.name LIKE '%$w%' OR e.bio LIKE '%$w%' OR vc.name LIKE '%$w%' OR vb.name LIKE '%$w%' OR vm.name LIKE '%$w%')";
+            }
+            if (!empty($word_conditions)) {
+                $sql .= " AND (" . implode(' AND ', $word_conditions) . ")";
+            }
         }
 
         // Apply HAVING clause for GPS filtering
@@ -286,77 +610,82 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
         }
 
         // Function to render expert card
-        function renderExpertCard($row, $location_text, $target_district) {
+        function renderExpertCard($row, $location_text) {
             ?>
-            <div class="expert-card" style="display: block;">
-                <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 15px;">
-                    <div class="expert-photo" style="width: 80px; height: 80px; border-radius: 12px; background: #e2e8f0; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #94a3b8; border: 2px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div class="expert-card">
+                <div style="display: flex; gap: 24px; align-items: flex-start;">
+                    <div class="expert-photo-container">
                         <?php if (!empty($row['profile_photo'])): ?>
-                            <img src="uploads/profiles/<?php echo $row['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="uploads/profiles/<?php echo $row['profile_photo']; ?>" alt="Expert">
                         <?php else: ?>
-                            <i class="ph ph-user-circle"></i>
+                            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #cbd5e1; font-size: 2.5rem;">
+                                <i class="ph ph-user"></i>
+                            </div>
                         <?php endif; ?>
                     </div>
-                    <div class="expert-info" style="flex: 1;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <h3 style="margin: 0; font-size: 1.25rem;">
-                                <?php echo htmlspecialchars($row['name']); ?> 
-                                <?php if (isset($row['distance']) && $row['distance'] !== null): ?>
-                                    <span class="distance-badge" style="<?php echo ($row['distance'] > 15) ? 'background: #fff7ed; color: #c2410c;' : ''; ?>">
-                                        <i class="ph ph-map-pin"></i> <?php echo round($row['distance'], 1); ?> km away
+                    
+                    <div style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <div>
+                                <h3 style="margin-bottom: 6px; font-size: 1.4rem; font-weight: 700; color: #1e293b;"><?php echo htmlspecialchars($row['name']); ?></h3>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <?php if (isset($row['distance']) && $row['distance'] !== null): ?>
+                                        <span class="distance-tag">
+                                            <i class="ph-fill ph-map-pin"></i> <?php echo round($row['distance'], 1); ?> km away
+                                        </span>
+                                    <?php endif; ?>
+                                    <span style="color: #64748b; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                        <i class="ph ph-navigation-arrow"></i> <?php echo htmlspecialchars($row['district']); ?>
                                     </span>
-                                <?php elseif (!empty($location_text)): ?>
-                                     <span class="distance-badge" style="background: #f1f5f9; color: #64748b;">
-                                        <i class="ph ph-warning-circle"></i> Service Area: <?php echo htmlspecialchars($row['district']); ?>
-                                     </span>
-                                <?php endif; ?>
-                            </h3>
-                            <div class="expert-meta" style="margin: 0; font-weight: 500;">
-                                Exp: <?php echo $row['experience']; ?> Yrs
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="exp-badge"><?php echo $row['experience']; ?> Yrs Exp</span>
                             </div>
                         </div>
-                        <div class="expert-meta" style="margin-top: 5px;"><i class="ph-fill ph-map-pin"></i> Service Areas: <?php echo htmlspecialchars($row['district']); ?></div>
-                        <div style="font-size: 0.9rem; margin-top: 8px; color: #475569;"><i class="ph ph-graduation-cap"></i> <?php echo htmlspecialchars($row['qualification']); ?></div>
-                    </div>
-                </div>
-                
-                <?php if (!empty($row['bio'])): ?>
-                    <div style="font-size: 0.95rem; color: #475569; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #cbd5e1;">
-                        <?php echo nl2br(htmlspecialchars($row['bio'])); ?>
-                    </div>
-                <?php endif; ?>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                    <div class="social-links" style="display: flex; gap: 15px;">
-                        <?php if (!empty($row['linkedin_url'])): ?>
-                            <a href="<?php echo $row['linkedin_url']; ?>" target="_blank" style="color: #0077b5; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; text-decoration: none;">
-                                <i class="ph ph-linkedin-logo" style="font-size: 1.2em;"></i>
-                                LinkedIn
-                            </a>
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-weight: 600; color: #475569; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                                <i class="ph ph-shield-check" style="color: var(--primary);"></i>
+                                <?php echo htmlspecialchars($row['qualification']); ?>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($row['bio'])): ?>
+                            <p style="margin: 0 0 20px 0; color: #64748b; font-size: 0.95rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                <?php echo htmlspecialchars($row['bio']); ?>
+                            </p>
                         <?php endif; ?>
-                        <?php if (!empty($row['website_url'])): ?>
-                            <a href="<?php echo $row['website_url']; ?>" target="_blank" style="color: #64748b; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; text-decoration: none;">
-                                <i class="ph ph-globe" style="font-size: 1.2em;"></i>
-                                Website
-                            </a>
-                        <?php endif; ?>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 12px;">
+                                <?php if (!empty($row['linkedin_url'])): ?>
+                                    <a href="<?php echo $row['linkedin_url']; ?>" target="_blank" style="color: #64748b; font-size: 1.1rem;"><i class="ph ph-linkedin-logo"></i></a>
+                                <?php endif; ?>
+                                <?php if (!empty($row['website_url'])): ?>
+                                    <a href="<?php echo $row['website_url']; ?>" target="_blank" style="color: #64748b; font-size: 1.1rem;"><i class="ph ph-globe"></i></a>
+                                <?php endif; ?>
+                            </div>
+                            <a href="expert_profile.php?id=<?php echo htmlspecialchars($row['expert_id']); ?>" class="btn-view">View Profile</a>
+                        </div>
                     </div>
-                    <a href="expert_profile.php?id=<?php echo htmlspecialchars($row['expert_id']); ?>" class="btn btn-primary" style="padding: 8px 25px;">View Profile</a>
                 </div>
             </div>
             <?php
         }
+
 
         // Display Results
         if (count($nearby_experts) > 0 || count($other_experts) > 0) {
             // 1. Nearby Experts Section
             if (count($nearby_experts) > 0) {
                 ?>
-                <div style="margin-bottom: 40px;">
-                    <h3 style="color: #166534; font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #dcfce7;">
-                        <i class="ph-fill ph-map-pin"></i> Nearby Experts (Within 15km)
+                <div class="result-group">
+                    <h3 class="result-group-title">
+                        <i class="ph ph-navigation-arrow"></i> 
+                        Nearby Experts <span>(Within 15km)</span>
                     </h3>
-                    <?php foreach ($nearby_experts as $expert) renderExpertCard($expert, $location_text, $target_district); ?>
+                    <?php foreach ($nearby_experts as $expert) renderExpertCard($expert, $location_text); ?>
                 </div>
                 <?php
             }
@@ -364,16 +693,21 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
             // 2. Other District Experts Section
             if (count($other_experts) > 0) {
                 ?>
-                <div style="margin-bottom: 40px;">
-                    <h3 style="color: #c2410c; font-size: 1.3rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #fff7ed;">
-                        <i class="ph ph-buildings"></i> Other District Experts
+                <div class="result-group" style="margin-top: 60px;">
+                    <h3 class="result-group-title">
+                        <i class="ph ph-buildings"></i> 
+                        Other District Experts
                     </h3>
-                    <?php foreach ($other_experts as $expert) renderExpertCard($expert, $location_text, $target_district); ?>
+                    <?php foreach ($other_experts as $expert) renderExpertCard($expert, $location_text); ?>
                 </div>
                 <?php
             }
         } else {
-             echo "<p style='text-align:center; padding: 40px; color: #64748b;'>No available experts found matching your criteria.</p>";
+             echo "<div style='text-align:center; padding: 80px 40px; background: white; border-radius: 20px; border: 1px dashed #e2e8f0;'>
+                    <i class='ph ph-magnifying-glass' style='font-size: 3rem; color: #cbd5e1; margin-bottom: 20px;'></i>
+                    <h3 style='color: #475569;'>No experts found</h3>
+                    <p style='color: #94a3b8;'>Try adjusting your vehicle or location filters.</p>
+                   </div>";
         }
         ?>
 
@@ -397,6 +731,8 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
         const selectedCatId = <?php echo $category_id; ?>;
         const selectedBrandId = <?php echo $brand_id; ?>;
         const selectedModelId = <?php echo $model_id; ?>;
+        
+        const localTownCoords = <?php echo json_encode($town_coords); ?>;
 
         const catSelect = document.getElementById('category_select');
         const brandSelect = document.getElementById('brand_select');
@@ -483,34 +819,75 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
                             if (data.length > 0) {
                                 data.forEach(item => {
                                     const div = document.createElement('div');
-                                    div.style.padding = '10px 15px';
-                                    div.style.borderBottom = '1px solid #f1f5f9';
+                                    div.className = 'suggestion-item';
+                                    div.style.padding = '14px 20px';
                                     div.style.cursor = 'pointer';
-                                    div.style.color = '#1e293b';
-                                    div.style.fontSize = '0.95rem';
-                                    div.onmouseover = () => div.style.background = '#f8fafc';
-                                    div.onmouseout = () => div.style.background = 'white';
+                                    div.style.transition = 'all 0.2s ease';
+                                    div.style.borderBottom = '1px solid #f1f5f9';
                                     
-                                    div.textContent = item.display;
+                                    div.onmouseover = () => {
+                                        div.style.background = 'var(--primary-light)';
+                                        div.style.paddingLeft = '25px';
+                                    };
+                                    div.onmouseout = () => {
+                                        div.style.background = 'transparent';
+                                        div.style.paddingLeft = '20px';
+                                    };
+                                    
+                                    div.innerHTML = `
+                                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                            <div style="flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding-right: 15px;">
+                                                <div style="font-weight: 600; color: #1e293b; font-size: 1rem;">${item.name}</div>
+                                                <div style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">${item.subtext || ''}</div>
+                                            </div>
+                                            <span style="background: ${item.type === 'external' ? 'var(--primary-light)' : '#f1f5f9'}; 
+                                                         color: ${item.type === 'external' ? 'var(--primary-dark)' : '#475569'}; 
+                                                         padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid ${item.type === 'external' ? 'var(--primary)' : '#e2e8f0'}; flex-shrink: 0; letter-spacing: 0.05em;">
+                                                ${item.type_label}
+                                            </span>
+                                        </div>
+                                    `;
                                     
                                     div.onclick = () => {
-                                        const currentLoc = document.getElementById('location-input').value;
-                                        const currentLat = document.getElementById('search-lat').value;
-                                        const currentLng = document.getElementById('search-lng').value;
-                                        let baseRedirect = '';
-                                        
-                                        if (item.type === 'category') {
-                                            baseRedirect = `?category_id=${item.id}&search=${encodeURIComponent(item.name)}`;
-                                        } else if (item.type === 'brand') {
-                                            baseRedirect = `?brand_id=${item.id}&search=${encodeURIComponent(item.name)}`;
-                                        } else if (item.type === 'model') {
-                                            baseRedirect = `?model_id=${item.id}&search=${encodeURIComponent(item.name)}`;
-                                        }
+                                        const proceed = (itemData) => {
+                                            const currentLoc = document.getElementById('location-input').value;
+                                            const currentLat = document.getElementById('search-lat').value;
+                                            const currentLng = document.getElementById('search-lng').value;
+                                            let baseRedirect = '';
+                                            
+                                            if (itemData.type === 'category') {
+                                                baseRedirect = `?category_id=${itemData.id}&search=${encodeURIComponent(itemData.name)}`;
+                                            } else if (itemData.type === 'brand') {
+                                                baseRedirect = `?brand_id=${itemData.id}&search=${encodeURIComponent(itemData.name)}`;
+                                            } else if (itemData.type === 'model') {
+                                                baseRedirect = `?model_id=${itemData.id}&search=${encodeURIComponent(itemData.name)}`;
+                                            }
 
-                                        if (currentLoc) {
-                                            baseRedirect += `&location=${encodeURIComponent(currentLoc)}&lat=${currentLat}&lng=${currentLng}`;
+                                            if (currentLoc) {
+                                                baseRedirect += `&location=${encodeURIComponent(currentLoc)}&lat=${currentLat}&lng=${currentLng}`;
+                                            }
+                                            window.location.href = baseRedirect;
+                                        };
+
+                                        if (item.external) {
+                                            // Auto-Ingest from Global DB
+                                            div.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving to local database...';
+                                            const formData = new FormData();
+                                            formData.append('brand', item.brand);
+                                            formData.append('model', item.name);
+                                            
+                                            fetch('ingest_vehicle.php', { method: 'POST', body: formData })
+                                                .then(res => res.json())
+                                                .then(data => {
+                                                    if (data.success) {
+                                                        proceed({ type: 'model', id: data.id, name: data.name });
+                                                    } else {
+                                                        alert("Error saving vehicle data.");
+                                                    }
+                                                });
+                                        } else {
+                                            proceed(item);
                                         }
-                                        window.location.href = baseRedirect;
                                     };
                                     suggestionsBox.appendChild(div);
                                 });
@@ -542,7 +919,22 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
                 
                 // If location is entered but coordinates are missing or zero
                 if (locationValue && locationValue !== "Current Location" && (!latValue || !lngValue || (latValue === 0 && lngValue === 0))) {
-                    e.preventDefault(); // Stop form submission
+                    // 1. Check Local Lookup (INSTANT)
+                    let found = false;
+                    for (const [name, coords] of Object.entries(localTownCoords)) {
+                         if (locationValue.toLowerCase().includes(name.toLowerCase())) {
+                             latInput.value = coords.lat;
+                             lngInput.value = coords.lng;
+                             found = true;
+                             break;
+                         }
+                    }
+
+                    if (found) {
+                        return; // Allow form to submit normally
+                    }
+
+                    e.preventDefault(); // Stop form submission for API geocoding
                     
                     // Show loading indicator
                     const submitBtn = searchForm.querySelector('button[type="submit"]');
@@ -550,19 +942,22 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
                     submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Locating...';
                     submitBtn.disabled = true;
                     
-                    // Geocode the location
-                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationValue + ', Sri Lanka')}&limit=1`)
+                    // Geocode the location with a timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationValue + ', Sri Lanka')}&limit=1`, { signal: controller.signal })
                         .then(res => res.json())
                         .then(data => {
+                            clearTimeout(timeoutId);
                             if (data && data.length > 0) {
                                 latInput.value = data[0].lat;
                                 lngInput.value = data[0].lon;
-                                console.log(`Geocoded ${locationValue}: ${data[0].lat}, ${data[0].lon}`);
                             }
                             searchForm.submit();
                         })
                         .catch(err => {
-                            console.error('Geocoding error:', err);
+                            console.warn('Geocoding slow or failed:', err);
                             searchForm.submit(); // Proceed anyway
                         });
                 }
@@ -707,10 +1102,19 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
                 locInput.value = townName;
                 locSuggestions.style.display = 'none';
                 
+                // 1. Check Local Lookup
+                for (const [name, coords] of Object.entries(localTownCoords)) {
+                    if (townName.toLowerCase().includes(name.toLowerCase())) {
+                        latInput.value = coords.lat;
+                        lngInput.value = coords.lng;
+                        return; // Instant
+                    }
+                }
+
                 // Show loading state
                 locInput.style.opacity = '0.6';
                 
-                // Geocode the town name to get coordinates
+                // 2. Geocode manually if not in local map
                 fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(townName + ', Badulla, Sri Lanka')}&limit=1`)
                     .then(res => res.json())
                     .then(data => {
@@ -757,13 +1161,16 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
                 }
 
                 // UI Feedback
-                locateBtn.style.color = '#166534';
-                locateBtn.classList.add('ph-spinner', 'ph-spin');
+                locateBtn.style.color = 'var(--primary)';
+                locateBtn.classList.add('ph-spinner', 'ph-spin', 'locating-active');
                 locateBtn.classList.remove('ph-crosshair');
-                document.getElementById('location-input').placeholder = "Locating...";
+                const locInput = document.getElementById('location-input');
+                locInput.placeholder = "Locating...";
+                locInput.classList.add('locating-active');
 
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
+                        locInput.classList.remove('locating-active');
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
                         

@@ -15,28 +15,7 @@ $message = "";
 // 1. Handle Form Submission & AJAX
 if ($_SERVER["REQUEST_METHOD"] == "POST" || isset($_GET['action'])) {
     
-    // AJAX SEARCH API
-    if (isset($_GET['action']) && $_GET['action'] == 'search_vehicle') {
-        header('Content-Type: application/json');
-        $q = isset($_GET['query']) ? $conn->real_escape_string($_GET['query']) : '';
-        $results = [];
 
-        if (strlen($q) >= 2) {
-            // 1. Categories
-            $res = $conn->query("SELECT category_id, name FROM vehicle_categories WHERE name LIKE '%$q%' LIMIT 5");
-            while ($row = $res->fetch_assoc()) $results[] = ['type' => 'category', 'id' => $row['category_id'], 'name' => $row['name'] . ' (Category)'];
-
-            // 2. Brands
-            $res = $conn->query("SELECT b.brand_id, b.name, c.name as cat_name FROM vehicle_brands b JOIN vehicle_categories c ON b.category_id = c.category_id WHERE b.name LIKE '%$q%' LIMIT 5");
-            while ($row = $res->fetch_assoc()) $results[] = ['type' => 'brand', 'id' => $row['brand_id'], 'name' => $row['name'] . ' (' . $row['cat_name'] . ')'];
-
-            // 3. Models
-            $res = $conn->query("SELECT m.model_id, m.name, b.name as brand_name FROM vehicle_models m JOIN vehicle_brands b ON m.brand_id = b.brand_id WHERE m.name LIKE '%$q%' LIMIT 5");
-            while ($row = $res->fetch_assoc()) $results[] = ['type' => 'model', 'id' => $row['model_id'], 'name' => $row['name'] . ' (Model - ' . $row['brand_name'] . ')'];
-        }
-        echo json_encode($results);
-        exit;
-    }
 
     if ($role == 'buyer') {
         $name = $_POST['name'];
@@ -235,7 +214,7 @@ if ($role == 'buyer') {
         .form-container { max-width: 700px; margin: 40px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; }
-        input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        input[type="text"], input[type="number"], input[type="password"], input[type="email"], input[type="url"], textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
         .alert-success { background: #dcfce7; color: #166534; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         .alert-error { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         #map { height: 300px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px; }
@@ -534,7 +513,7 @@ if ($role == 'buyer') {
                     return;
                 }
 
-                fetch('?action=search_vehicle&query=' + encodeURIComponent(query))
+                fetch('ajax_search_vehicle.php?query=' + encodeURIComponent(query))
                     .then(res => res.json())
                     .then(data => {
                         suggestionsBox.innerHTML = '';
@@ -542,8 +521,36 @@ if ($role == 'buyer') {
                             data.forEach(item => {
                                 const div = document.createElement('div');
                                 div.className = 'suggestion-item';
-                                div.textContent = item.name;
-                                div.onclick = () => addTag(item.type, item.id, item.name);
+                                div.innerHTML = `
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <div style="font-weight: 600; color: #1e293b;">${item.name}</div>
+                                            <div style="color: #64748b; font-size: 0.8rem;">${item.subtext || ''}</div>
+                                        </div>
+                                        <span style="background: ${item.type === 'external' ? '#fff7ed' : '#eff6ff'}; 
+                                                     color: ${item.type === 'external' ? '#c2410c' : '#1d4ed8'}; 
+                                                     padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border: 1px solid ${item.type === 'external' ? '#ffedd5' : '#dbeafe'};">
+                                            ${item.type_label}
+                                        </span>
+                                    </div>
+                                `;
+                                div.onclick = () => {
+                                    if (item.external) {
+                                        div.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
+                                        const formData = new FormData();
+                                        formData.append('brand', item.brand);
+                                        formData.append('model', item.name);
+                                        fetch('ingest_vehicle.php', { method: 'POST', body: formData })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    addTag('model', data.id, data.display);
+                                                }
+                                            });
+                                    } else {
+                                        addTag(item.type, item.id, item.name);
+                                    }
+                                };
                                 suggestionsBox.appendChild(div);
                             });
                             suggestionsBox.style.display = 'block';
