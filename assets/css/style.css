@@ -548,3 +548,21 @@ header nav a:hover {
         text-align: left;
     }
 }
+
+/* Footer Styles */
+footer { background: #0f172a; color: white; padding: 100px 0 50px; margin-top: 120px; }
+footer .logo h1 { color: white; font-size: 2rem; margin-bottom: 16px; font-weight: 800; }
+footer .logo span { color: var(--primary); }
+footer p { opacity: 0.6; font-size: 1rem; line-height: 1.6; }
+.footer-link { color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
+.footer-link:hover { color: var(--primary); }
+
+@media (max-width: 768px) {
+    footer .container > div {
+        grid-template-columns: 1fr !important; /* Stack footer columns */
+        gap: 40px !important; /* Ensure gap is applied */
+    }
+    
+    footer { text-align: center; }
+    footer .logo p { margin: 20px auto 0; }
+}

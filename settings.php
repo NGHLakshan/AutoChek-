@@ -301,5 +301,6 @@ if ($role == 'expert') {
                 });
         }
     </script>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

@@ -536,7 +536,12 @@ if ($role == 'buyer') {
 
         <div class="settings-card">
             <div class="settings-header">
-                <h2><i class="ph ph-gear"></i> Profile Settings</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2><i class="ph ph-gear"></i> Profile Settings</h2>
+                    <a href="settings.php" class="btn btn-outline" style="font-size: 0.9rem; padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-lock-key"></i> Account Security
+                    </a>
+                </div>
             </div>
             
             <div class="settings-content">
@@ -1152,5 +1157,6 @@ if ($role == 'buyer') {
 
         <?php endif; ?>
     </script>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

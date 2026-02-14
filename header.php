@@ -37,16 +37,14 @@ if ($current_role == 'expert' && $current_user_id) {
                 <li><a href="index.php"><i class="ph ph-house"></i> Home</a></li>
                 
                 <?php if ($current_user_id): ?>
+                    <li><a href="dashboard.php"><i class="ph ph-gauge"></i> Dashboard</a></li>
+                    
                     <?php if ($current_role == 'buyer'): ?>
                         <li><a href="experts.php"><i class="ph ph-magnifying-glass"></i> Find Expert</a></li>
-                        <li><a href="dashboard.php"><i class="ph ph-calendar-check"></i> Bookings</a></li>
-                        <li><a href="profile_settings.php"><i class="ph ph-user-gear"></i> Profile Settings</a></li>
-                    <?php elseif ($current_role == 'admin'): ?>
-                        <li><a href="dashboard.php"><i class="ph ph-gauge"></i> Dashboard</a></li>
-                        <li><a href="settings.php"><i class="ph ph-gear"></i> Settings</a></li>
-                    <?php else: ?>
-                        <li><a href="dashboard.php"><i class="ph ph-gauge"></i> Dashboard</a></li>
+                        <li><a href="profile_settings.php"><i class="ph ph-user-gear"></i> Profile</a></li>
+                    <?php elseif ($current_role == 'expert'): ?>
                         <li><a href="profile_settings.php"><i class="ph ph-user"></i> Profile</a></li>
+                    <?php elseif ($current_role == 'admin'): ?>
                         <li><a href="settings.php"><i class="ph ph-gear"></i> Settings</a></li>
                     <?php endif; ?>
 

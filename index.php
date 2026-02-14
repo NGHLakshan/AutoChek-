@@ -167,6 +167,7 @@ require_once 'db.php';
         .footer-link { color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
         .footer-link:hover { color: var(--primary); }
 
+
         /* Mobile Specific Overrides */
         @media (max-width: 768px) {
             .hero h2 { font-size: 2.5rem; }

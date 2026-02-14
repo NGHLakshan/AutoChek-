@@ -1280,5 +1280,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
     <?php if ($role == 'admin'): ?>
         <?php include 'expert_details_modal.php'; ?>
     <?php endif; ?>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

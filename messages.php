@@ -645,5 +645,6 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
         }
     </script>
 
+    <?php include 'footer.php'; ?>
 </body>
 </html>

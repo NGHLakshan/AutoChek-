@@ -322,11 +322,7 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
         });
     </script>
 
-    <footer style="background: #1e293b; color: white; padding: 40px 0; margin-top: 60px;">
-        <div class="container" style="text-align: center; opacity: 0.7; font-size: 0.9rem;">
-            &copy; <?php echo date('Y'); ?> AutoChek Vehicle Marketplace.
-        </div>
-    </footer>
+    <?php include 'footer.php'; ?>
 
 </body>
 </html>

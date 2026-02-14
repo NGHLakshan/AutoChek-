@@ -406,5 +406,6 @@ $payment_history = $conn->query($payment_history_query);
         </div>
     </div>
 
+    <?php include 'footer.php'; ?>
 </body>
 </html>
