@@ -171,7 +171,7 @@ $payment_history = $conn->query($payment_history_query);
         
         /* Specific Card Styles */
         .stat-total .stat-icon { background: #ecfdf5; color: #059669; }
-        .stat-month .stat-icon { background: #eff6ff; color: #2563eb; }
+        .stat-month .stat-icon { background: #d1fae5; color: #059669; }
         .stat-jobs .stat-icon { background: #f5f3ff; color: #7c3aed; }
         .stat-pending .stat-icon { background: #fff7ed; color: #ea580c; }
 
@@ -380,7 +380,7 @@ $payment_history = $conn->query($payment_history_query);
                                     <td>
                                         <div class="payment-method">
                                             <?php if ($payment['method'] == 'card'): ?>
-                                                <i class="ph-fill ph-credit-card" style="color: #2563eb; font-size: 1.1rem;"></i> Card
+                                                <i class="ph-fill ph-credit-card" style="color: #059669; font-size: 1.1rem;"></i> Card
                                             <?php else: ?>
                                                 <i class="ph-fill ph-money" style="color: #16a34a; font-size: 1.1rem;"></i> Cash
                                             <?php endif; ?>

@@ -385,7 +385,7 @@ require_once 'db.php';
                     <h4 style="color: white; margin-bottom: 24px;">Support</h4>
                     <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
                         <p style="font-size: 0.85rem; margin-bottom: 12px; opacity: 1;">Direct Assistance:</p>
-                        <a href="tel:+94771234567" style="color: var(--primary); font-weight: 700; font-size: 1.1rem; text-decoration: none; display: flex; align-items: center; gap: 8px;"><i class="ph ph-phone"></i> +94 77 123 4567</a>
+                        <a href="tel:0787273866" style="color: var(--primary); font-weight: 700; font-size: 1.1rem; text-decoration: none; display: flex; align-items: center; gap: 8px;"><i class="ph ph-phone"></i> 078 727 3866</a>
                     </div>
                 </div>
             </div>

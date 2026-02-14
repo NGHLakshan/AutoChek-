@@ -61,7 +61,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
         /* Status Indicator Left Border */
         .buyer-view .booking-card.status-pending { border-left-color: #f59e0b; }
         .buyer-view .booking-card.status-approved { border-left-color: #10b981; }
-        .buyer-view .booking-card.status-completed { border-left-color: #2563eb; }
+        .buyer-view .booking-card.status-completed { border-left-color: #059669; }
         .buyer-view .booking-card.status-cancelled { border-left-color: #ef4444; }
         .buyer-view .booking-card.status-rejected { border-left-color: #64748b; }
 
@@ -106,16 +106,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
         .buyer-view .action-btn:nth-child(even) { transform: none; }
         .buyer-view .action-btn:hover { 
             background: #eff6ff; 
-            border-color: #2563eb; 
-            color: #2563eb; 
+            border-color: #10b981; 
+            color: #10b981; 
             transform: translateY(-1px); 
             z-index: 5;
         }
         .buyer-view .action-btn.btn-primary { 
-            background: #2563eb; 
+            background: #10b981; 
             color: white; 
-            border-color: #2563eb; 
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            border-color: #10b981; 
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
         }
 
         /* Filter Tabs as Folder Tabs */
@@ -503,9 +503,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     <p style="font-size: 0.85rem; color: #475569; margin: 0 0 10px 0; line-height: 1.5;"><?php echo htmlspecialchars($rev['comment']); ?></p>
                                     
                                     <?php if (!empty($rev['expert_reply'])): ?>
-                                        <div style="background: #f8fafc; border-left: 3px solid #3b82f6; padding: 10px 15px; margin-top: 10px; border-radius: 4px;">
+                                        <div style="background: #f8fafc; border-left: 3px solid #10b981; padding: 10px 15px; margin-top: 10px; border-radius: 4px;">
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                                <small style="font-weight: 600; color: #1e3a8a;">Your Response</small>
+                                                <small style="font-weight: 600; color: #166534;">Your Response</small>
                                                 <small style="color: #94a3b8;"><?php echo date('M j, Y', strtotime($rev['reply_date'])); ?></small>
                                             </div>
                                             <p style="font-size: 0.85rem; color: #334155; margin: 0; italic;"><?php echo htmlspecialchars($rev['expert_reply']); ?></p>
@@ -618,7 +618,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     <div class="meta-pill"><i class="ph ph-calendar-blank"></i> <strong><?php echo date('M j, Y', strtotime($row['booking_date'])); ?></strong></div>
                                     <div class="meta-pill"><i class="ph ph-package"></i> <strong><?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?></strong></div>
                                     <div class="meta-pill"><i class="ph ph-globe"></i> <strong><?php echo htmlspecialchars($row['service_type'] ?? 'Physical'); ?></strong></div>
-                                    <div class="meta-pill" style="color: #2563eb;"><i class="ph ph-money"></i> <strong>LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?></strong></div>
+                                    <div class="meta-pill" style="color: #059669;"><i class="ph ph-money"></i> <strong>LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?></strong></div>
                                 </div>
                                 <?php if (!empty($row['cancellation_reason'])): ?>
                                     <div style="font-size: 0.7rem; color: #991b1b; margin-top: 5px;">
@@ -705,12 +705,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
             <!-- Tab Navigation -->
             <div style="border-bottom: 2px solid #e2e8f0; margin-bottom: 30px;">
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <a href="?tab=dashboard" class="<?php echo $current_tab == 'dashboard' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'dashboard' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'dashboard' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-gauge"></i> Dashboard</a>
-                    <a href="?tab=experts" class="<?php echo $current_tab == 'experts' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'experts' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'experts' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-users-three"></i> Experts</a>
-                    <a href="?tab=buyers" class="<?php echo $current_tab == 'buyers' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'buyers' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'buyers' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-users"></i> Buyers</a>
-                    <a href="?tab=bookings" class="<?php echo $current_tab == 'bookings' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'bookings' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'bookings' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-calendar-check"></i> Bookings</a>
-                    <a href="?tab=payments" class="<?php echo $current_tab == 'payments' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'payments' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'payments' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-money"></i> Payments</a>
-                    <a href="?tab=reviews" class="<?php echo $current_tab == 'reviews' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'reviews' ? '#2563eb' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'reviews' ? '#2563eb' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-star"></i> Reviews</a>
+                    <a href="?tab=dashboard" class="<?php echo $current_tab == 'dashboard' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'dashboard' ? '#10b981' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'dashboard' ? '#10b981' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-gauge"></i> Dashboard</a>
+                    <a href="?tab=experts" class="<?php echo $current_tab == 'experts' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'experts' ? '#10b981' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'experts' ? '#10b981' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-users-three"></i> Experts</a>
+                    <a href="?tab=buyers" class="<?php echo $current_tab == 'buyers' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'buyers' ? '#10b981' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'buyers' ? '#10b981' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-users"></i> Buyers</a>
+                    <a href="?tab=bookings" class="<?php echo $current_tab == 'bookings' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'bookings' ? '#10b981' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'bookings' ? '#10b981' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-calendar-check"></i> Bookings</a>
+                    <a href="?tab=payments" class="<?php echo $current_tab == 'payments' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'payments' ? '#10b981' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'payments' ? '#10b981' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-money"></i> Payments</a>
+                    <a href="?tab=reviews" class="<?php echo $current_tab == 'reviews' ? 'active' : ''; ?>" style="padding: 12px 24px; text-decoration: none; color: <?php echo $current_tab == 'reviews' ? '#10b981' : '#64748b'; ?>; font-weight: 600; border-bottom: 3px solid <?php echo $current_tab == 'reviews' ? '#10b981' : 'transparent'; ?>; transition: all 0.2s;"><i class="ph ph-star"></i> Reviews</a>
                 </div>
             </div>
             
@@ -803,8 +803,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     $status_colors = [
                                         'pending' => '#f59e0b',
                                         'approved' => '#10b981',
-                                        'in_progress' => '#3b82f6',
-                                        'completed' => '#2563eb',
+                                        'in_progress' => '#34d399',
+                                        'completed' => '#059669',
                                         'cancelled' => '#ef4444',
                                         'rejected' => '#64748b'
                                     ];
@@ -1013,8 +1013,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     $status_colors = [
                                         'pending' => '#f59e0b',
                                         'approved' => '#10b981',
-                                        'in_progress' => '#3b82f6',
-                                        'completed' => '#2563eb',
+                                        'in_progress' => '#34d399',
+                                        'completed' => '#059669',
                                         'cancelled' => '#ef4444',
                                         'rejected' => '#64748b'
                                     ];
@@ -1067,7 +1067,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                         <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">LKR <?php echo number_format($total_revenue, 0); ?></div>
                         <div style="font-size: 0.85rem; opacity: 0.9; font-weight: 500;">Total Revenue</div>
                     </div>
-                    <div class="card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 25px; text-align: center; border: none;">
+                    <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 25px; text-align: center; border: none;">
                         <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 8px;"><?php echo $total_payments; ?></div>
                         <div style="font-size: 0.85rem; opacity: 0.9; font-weight: 500;">Total Payments</div>
                     </div>

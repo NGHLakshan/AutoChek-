@@ -314,8 +314,8 @@ if ($role == 'buyer') {
 
         input:focus, textarea:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
         .photo-upload-area {
@@ -396,13 +396,13 @@ if ($role == 'buyer') {
         }
         
         .tag-container:focus-within {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
         .tag { 
-            background: #eff6ff; 
-            color: #1d4ed8; 
+            background: #ecfdf5; 
+            color: #059669; 
             padding: 4px 12px; 
             border-radius: 20px; 
             font-size: 0.85rem; 
@@ -410,7 +410,7 @@ if ($role == 'buyer') {
             display: flex; 
             align-items: center; 
             gap: 6px; 
-            border: 1px solid #dbeafe;
+            border: 1px solid #d1fae5;
         }
         
         .tag span.remove { 
@@ -425,8 +425,8 @@ if ($role == 'buyer') {
         }
         
         .tag span.remove:hover { 
-            background: #bfdbfe; 
-            color: #1e3a8a;
+            background: #a7f3d0; 
+            color: #064e3b;
         }
         
         .tag-input { 
@@ -498,7 +498,7 @@ if ($role == 'buyer') {
         }
 
         .btn-save {
-            background: #2563eb;
+            background: #10b981;
             color: white;
             border: none;
             padding: 14px 28px;
@@ -508,7 +508,7 @@ if ($role == 'buyer') {
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -516,9 +516,9 @@ if ($role == 'buyer') {
         }
 
         .btn-save:hover {
-            background: #1d4ed8;
+            background: #059669;
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
         }
 
         /* Notices */
@@ -596,11 +596,11 @@ if ($role == 'buyer') {
                             <h3 class="section-title"><i class="ph ph-bell-ringing"></i> Notifications</h3>
                             <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
                                 <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 500; margin-bottom: 15px;">
-                                    <input type="checkbox" name="email_notifications" value="1" <?php if($user['email_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px; accent-color: #2563eb;">
+                                    <input type="checkbox" name="email_notifications" value="1" <?php if($user['email_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px; accent-color: #10b981;">
                                     Email Notifications
                                 </label>
                                 <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 500; margin-bottom: 0;">
-                                    <input type="checkbox" name="sms_notifications" value="1" <?php if($user['sms_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px; accent-color: #2563eb;">
+                                    <input type="checkbox" name="sms_notifications" value="1" <?php if($user['sms_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px; accent-color: #10b981;">
                                     SMS Notifications
                                 </label>
                             </div>
@@ -706,7 +706,7 @@ if ($role == 'buyer') {
                                     </div>
                                     <?php if (!empty($user['certification_file'])): ?>
                                         <small style="display: block; margin-top: 5px;">
-                                            Current: <a href="uploads/certs/<?php echo $user['certification_file']; ?>" target="_blank" style="color: #2563eb;">View File</a>
+                                            Current: <a href="uploads/certs/<?php echo $user['certification_file']; ?>" target="_blank" style="color: #10b981;">View File</a>
                                         </small>
                                     <?php endif; ?>
                                 </div>

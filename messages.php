@@ -388,7 +388,7 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
         }
         
         .message-sent .message-bubble {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border-radius: 12px 12px 0 12px;
         }
@@ -425,8 +425,8 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
         
         .chat-input-form:focus-within {
             background: white;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
         
         .chat-input-form textarea {
@@ -442,7 +442,7 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
         }
         
         .btn-send {
-            background: #2563eb;
+            background: #10b981;
             color: white;
             border: none;
             width: 40px;
@@ -457,7 +457,7 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
         }
         
         .btn-send:hover {
-            background: #1d4ed8;
+            background: #059669;
             transform: scale(1.05);
         }
         
@@ -601,7 +601,7 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
                                         <?php echo nl2br(htmlspecialchars($msg['message_body'])); ?>
                                     </div>
                                     <div class="message-time">
-                                        <?php echo date('g:i A', strtotime($msg['created_at'])); ?>
+                                        <?php echo date('M j, g:i A', strtotime($msg['created_at'])); ?>
                                         <?php if ($is_sent): ?>
                                             <i class="ph-fill ph-check-circle" style="font-size: 0.8rem; margin-left: 2px;"></i>
                                         <?php endif; ?>

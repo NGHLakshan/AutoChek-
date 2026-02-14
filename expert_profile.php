@@ -183,7 +183,7 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
                     <?php if(!empty($expert['website_url'])): ?>
                         <p style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
                             <i class="ph ph-globe" style="color: #64748b;"></i>
-                            <a href="<?php echo htmlspecialchars($expert['website_url']); ?>" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 600;">Visit Website</a>
+                            <a href="<?php echo htmlspecialchars($expert['website_url']); ?>" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 600;">Visit Website</a>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -191,7 +191,7 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
                 <?php if ($is_owner): ?>
                     <div style="background: #eff6ff; color: #1e40af; padding: 15px; border-radius: 12px; border: 1px solid #dbeafe; font-size: 0.9rem; font-weight: 500;">
                         👋 You are viewing your own public profile.
-                        <a href="profile_settings.php" style="display: block; margin-top: 10px; color: #2563eb; font-weight: 700; text-decoration: none;">Edit Settings →</a>
+                        <a href="profile_settings.php" style="display: block; margin-top: 10px; color: #10b981; font-weight: 700; text-decoration: none;">Edit Settings →</a>
                     </div>
                 <?php elseif (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                     <div style="background: #f0fdf4; color: #15803d; padding: 15px; border-radius: 12px; border: 1px solid #bbf7d0; font-size: 0.9rem; font-weight: 500; text-align: center;">
@@ -238,7 +238,7 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
                                         <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #64748b;">Full vehicle diagnostics and report.</p>
                                     </div>
                                     <div style="text-align: right;">
-                                        <span style="font-size: 1.15rem; font-weight: 700; color: #2563eb;">LKR <?php echo number_format($pkg['price'], 2); ?></span>
+                                        <span style="font-size: 1.15rem; font-weight: 700; color: #059669;">LKR <?php echo number_format($pkg['price'], 2); ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -287,8 +287,8 @@ $is_owner = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $expert_id &
                         <p style="font-size: 0.95rem; color: #475569; margin: 0; line-height: 1.6;">"<?php echo htmlspecialchars($rev['comment']); ?>"</p>
                         
                         <?php if (!empty($rev['expert_reply'])): ?>
-                            <div style="background: #f8fafc; border-left: 3px solid #3b82f6; padding: 15px; margin-top: 15px; border-radius: 8px;">
-                                <small style="font-weight: 700; color: #1e40af; display: block; margin-bottom: 5px;">Response from Expert:</small>
+                            <div style="background: #f8fafc; border-left: 3px solid #10b981; padding: 15px; margin-top: 15px; border-radius: 8px;">
+                                <small style="font-weight: 700; color: #166534; display: block; margin-bottom: 5px;">Response from Expert:</small>
                                 <p style="font-size: 0.9rem; color: #334155; margin: 0; font-style: italic;"><?php echo htmlspecialchars($rev['expert_reply']); ?></p>
                             </div>
                         <?php endif; ?>

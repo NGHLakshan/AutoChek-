@@ -362,8 +362,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <p style="font-size: 0.9rem; color: #475569; margin: 0; line-height: 1.4;"><?php echo htmlspecialchars($rev['comment']); ?></p>
                         
                         <?php if (!empty($rev['expert_reply'])): ?>
-                            <div style="background: #f8fafc; border-left: 3px solid #3b82f6; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 0.85rem;">
-                                <div style="font-weight: 600; color: #1e3a8a; margin-bottom: 2px;">Expert's Response:</div>
+                            <div style="background: #f8fafc; border-left: 3px solid #10b981; padding: 10px; margin-top: 10px; border-radius: 4px; font-size: 0.85rem;">
+                                <div style="font-weight: 600; color: #166534; margin-bottom: 2px;">Expert's Response:</div>
                                 <p style="color: #334155; margin: 0; font-style: italic;"><?php echo htmlspecialchars($rev['expert_reply']); ?></p>
                             </div>
                         <?php endif; ?>
