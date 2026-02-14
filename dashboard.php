@@ -320,7 +320,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                             <?php endif; ?>
                                         </div>
                                         <div class="info-text">
-                                            <h4>#<?php echo $row['booking_id']; ?> - <?php echo htmlspecialchars($row['buyer_name']); ?></h4>
+                                            <h4><?php echo $row['booking_id']; ?> - <?php echo htmlspecialchars($row['buyer_name']); ?></h4>
                                             <p><strong><?php echo htmlspecialchars($row['vehicle_type']); ?></strong> • <?php echo date('M j, Y', strtotime($row['booking_date'])); ?></p>
                                             <p style="font-size: 0.85rem; color: #475569; margin: 4px 0;">
                                                 <i class="ph ph-package"></i> <?php echo htmlspecialchars($row['package_name'] ?? 'Standard'); ?> (LKR <?php echo number_format($row['package_price'] ?? 5000, 2); ?>) • 
@@ -606,7 +606,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 <?php endif; ?>
                                 <div>
                                     <h4 style="margin: 0; font-size: 0.9rem;"><?php echo htmlspecialchars($row['expert_name']); ?></h4>
-                                    <p style="margin: 0; font-size: 0.75rem; color: #64748b;">#<?php echo $row['booking_id']; ?></p>
+                                    <p style="margin: 0; font-size: 0.75rem; color: #64748b;"><?php echo $row['booking_id']; ?></p>
                                 </div>
                             </div>
 

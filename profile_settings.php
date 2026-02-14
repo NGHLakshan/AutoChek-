@@ -11,7 +11,6 @@ $user_id = $_SESSION['user_id'];
 $role = $_SESSION['role'];
 $message = "";
 
-// 1. Handle Form Submission
 // 1. Handle Form Submission & AJAX
 if ($_SERVER["REQUEST_METHOD"] == "POST" || isset($_GET['action'])) {
     
@@ -205,245 +204,565 @@ if ($role == 'buyer') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Settings | AutoChek</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=2.0">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
-        .form-container { max-width: 700px; margin: 40px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; }
-        input[type="text"], input[type="number"], input[type="password"], input[type="email"], input[type="url"], textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-        .alert-success { background: #dcfce7; color: #166534; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
-        .alert-error { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
-        #map { height: 300px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px; }
-        
-        /* Tag Input Styles */
-        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; border: 1px solid #cbd5e1; padding: 5px; border-radius: 6px; min-height: 42px; }
-        .tag { background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .tag span.remove { cursor: pointer; font-weight: bold; color: #60a5fa; }
-        .tag span.remove:hover { color: #1e40af; }
-        .tag-input { border: none; outline: none; flex: 1; min-width: 150px; padding: 5px; }
-        .suggestions-list { border: 1px solid #cbd5e1; border-radius: 0 0 6px 6px; position: absolute; background: white; width: 100%; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; margin-top: -1px; }
-        .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
-        .suggestion-item:hover { background: #f8fafc; }
-        .suggestion-item:last-child { border-bottom: none; }
-
-        /* Location Autocomplete Suggestions */
-        #location-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #cbd5e1;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            z-index: 1000;
-            display: none;
-            max-height: 300px;
-            overflow-y: auto;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            margin-top: -1px;
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
         }
+
+        .settings-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            padding: 30px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-content {
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        input[type="password"], 
+        input[type="email"], 
+        input[type="url"], 
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 42px; /* Space for icon */
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        textarea {
+            padding-left: 16px; /* No icon usually */
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .photo-upload-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .current-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .btn-upload {
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            background-color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-upload:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Map styling */
+        #map { 
+            height: 350px; 
+            width: 100%; 
+            border-radius: 12px; 
+            border: 1px solid #cbd5e1; 
+            margin-top: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Tags and Pills */
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            min-height: 46px;
+            background: white;
+        }
+        
+        .tag-container:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .tag { 
+            background: #eff6ff; 
+            color: #1d4ed8; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.85rem; 
+            font-weight: 500;
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            border: 1px solid #dbeafe;
+        }
+        
+        .tag span.remove { 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px; 
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .tag span.remove:hover { 
+            background: #bfdbfe; 
+            color: #1e3a8a;
+        }
+        
+        .tag-input { 
+            border: none !important; 
+            outline: none !important; 
+            box-shadow: none !important;
+            padding: 5px !important;
+            flex: 1; 
+            min-width: 150px; 
+            background: transparent !important;
+        }
+
+        .suggestions-list, #location-suggestions {
+            border: 1px solid #e2e8f0; 
+            border-radius: 10px; 
+            position: absolute; 
+            background: white; 
+            width: 100%; 
+            max-height: 250px; 
+            overflow-y: auto; 
+            z-index: 1000; 
+            display: none; 
+            margin-top: 5px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        
+        .suggestion-item { 
+            padding: 12px 16px; 
+            cursor: pointer; 
+            border-bottom: 1px solid #f1f5f9; 
+            transition: background 0.1s;
+        }
+        
+        .suggestion-item:hover { 
+            background: #f8fafc; 
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            margin-top: 40px;
+            padding: 25px;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            background: #fef2f2;
+        }
+
+        .danger-zone h4 {
+            color: #991b1b;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-save {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-save:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Notices */
+        .alert-success { background: #dcfce7; color: #166534; padding: 16px; border-radius: 10px; margin-bottom: 24px; border: 1px solid #bbf7d0; display: flex; gap: 10px; align-items: center; }
+        .alert-error { background: #fee2e2; color: #991b1b; padding: 16px; border-radius: 10px; margin-bottom: 24px; border: 1px solid #fecaca; display: flex; gap: 10px; align-items: center; }
     </style>
 </head>
 <body>
 
     <?php include 'header.php'; ?>
 
-    <div class="container">
-        <div class="form-container">
-            <h2>Profile Settings</h2>
-            <?php echo $message; ?>
+    <div class="settings-container">
+        
+        <?php echo $message; ?>
+
+        <div class="settings-card">
+            <div class="settings-header">
+                <h2><i class="ph ph-gear"></i> Profile Settings</h2>
+            </div>
             
-            <form method="POST" enctype="multipart/form-data">
-                <div class="mobile-stack" style="display: flex; gap: 20px; align-items: center; margin-bottom: 30px;">
-                    <div id="photoPreview" style="width: 100px; height: 100px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <?php if (!empty($user['profile_photo'])): ?>
-                            <img src="uploads/profiles/<?php echo $user['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
-                        <?php else: ?>
-                            <i class="ph ph-user" style="font-size: 3rem; color: #94a3b8;"></i>
-                        <?php endif; ?>
-                    </div>
-                    <div>
-                        <label>Profile Photo</label>
-                        <input type="file" name="profile_photo" accept="image/*" onchange="previewImage(this)">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Your Name</label>
-                    <div style="position: relative;">
-                        <i class="ph ph-user" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                        <input type="text" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required style="padding-left: 35px;">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <div style="position: relative;">
-                        <i class="ph ph-phone" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                        <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" style="padding-left: 35px;">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Bio / About You</label>
-                    <textarea name="bio" rows="4" placeholder="Tell us a bit about yourself..."><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
-                </div>
-
-                <?php if ($role == 'buyer'): ?>
-
-
-                    <hr style="margin: 40px 0; border: none; border-top: 2px solid #f1f5f9;">
-
-                    <h3>🔔 Notifications</h3>
-                    <div class="form-group" style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
-                        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 500; margin-bottom: 15px;">
-                            <input type="checkbox" name="email_notifications" value="1" <?php if($user['email_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px;">
-                            Email Notifications
-                        </label>
-                        <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 500; margin-bottom: 0;">
-                            <input type="checkbox" name="sms_notifications" value="1" <?php if($user['sms_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px;">
-                            SMS Notifications
-                        </label>
-                    </div>
-
-                    <h3>🔒 Password Security</h3>
-                    <div class="form-group">
-                        <label>Current Password</label>
-                        <div style="position: relative;">
-                            <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                            <input type="password" name="current_password" placeholder="••••••••" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
-                        </div>
-                    </div>
-                    <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                        <div class="form-group">
-                            <label>New Password</label>
-                            <div style="position: relative;">
-                                <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                                <input type="password" name="new_password" placeholder="New Password" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Confirm New Password</label>
-                            <div style="position: relative;">
-                                <i class="ph ph-lock-key" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                                <input type="password" name="confirm_password" placeholder="Confirm Password" style="width: 100%; padding: 10px; padding-left: 35px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 40px; padding: 25px; border: 1px solid #fee2e2; border-radius: 12px; background: #fffafb; margin-bottom: 30px;">
-                        <h4 style="color: #991b1b; margin-top:0;">⚠️ Danger Zone</h4>
-                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">Deleting your account is permanent. All your data will be wiped.</p>
-                        <button type="button" onclick="confirmDelete()" class="btn" style="background:#ef4444; color:white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Delete Account Permanently</button>
-                    </div>
-
-                    <script>
-                    function confirmDelete() {
-                        if (confirm('WARNING: Are you sure you want to permanently delete your account?')) {
-                            const form = document.createElement('form');
-                            form.method = 'POST';
-                            form.innerHTML = '<input type="hidden" name="action" value="delete_account">';
-                            document.body.appendChild(form);
-                            form.submit();
-                        }
-                    }
-                    </script>
-                <?php endif; ?>
-
-                <?php if ($role == 'expert'): ?>
-                    <hr>
-                    <h3>Expert Professional Profile</h3>
+            <div class="settings-content">
+                <form method="POST" enctype="multipart/form-data">
                     
-
-                    <div class="form-group">
-                        <label>Vehicle Specializations</label>
-                        <small style="color: #64748b; margin-bottom: 5px; display: block;">Search and add vehicles you inspect (Category, Brand, or Model).</small>
-                        <div style="position: relative;">
-                             <div class="tag-container" id="tagContainer">
-                                 <i class="ph ph-magnifying-glass" style="color: #94a3b8; margin: 0 5px;"></i>
-                                 <input type="text" class="tag-input" id="specSearch" placeholder="Type to search (e.g. 'Toyota', 'Bike')..." autocomplete="off">
-                             </div>
-                             <div class="suggestions-list" id="suggestions"></div>
-                        </div>
-                        <!-- Hidden inputs generated by JS -->
-                        <div id="hiddenInputs"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Inspection Packages / Pricing</label>
-                        <small style="color: #64748b; margin-bottom: 10px; display: block;">Add different service tiers (e.g. Basic, Standard, Full). Buyers will choose one during booking.</small>
-                        <div id="packages-container">
-                            <!-- JS will populate existing packages -->
-                        </div>
-                        <button type="button" class="btn" style="background:#f1f5f9; color:#475569; padding: 8px 15px; font-size: 0.9rem;" onclick="addPackageRow()">+ Add Package</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Service Area / Location</label>
-                        <small style="color: #64748b; margin-bottom: 10px; display: block;">Enter your service area or drag the pin on the map to set your exact location.</small>
+                    <!-- Basic Info -->
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="ph ph-user-circle"></i> Basic Information</h3>
                         
-                        <!-- Text Input with Autocomplete -->
-                        <div style="position: relative; z-index: 1001;">
-                            <i class="ph ph-map-pin" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                            <input type="text" name="district" id="district-input" value="<?php echo htmlspecialchars($user['district'] ?? ''); ?>" required placeholder="e.g. Badulla" style="margin-bottom: 10px; padding-left: 35px;" autocomplete="off">
-                            <div id="location-suggestions"></div>
-                        </div>
-                        <div id="location-error" class="alert-error" style="display:none; padding: 10px; font-size: 0.9rem; margin-top: 5px;"></div>
-
-                        <!-- Map -->
-                        <div id="map"></div>
-                        <input type="hidden" name="latitude" id="lat" value="<?php echo $user['latitude'] ?? ''; ?>">
-                        <input type="hidden" name="longitude" id="lng" value="<?php echo $user['longitude'] ?? ''; ?>">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Qualifications</label>
-                        <textarea name="qualification" rows="3"><?php echo htmlspecialchars($user['qualification'] ?? ''); ?></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Certification / Proof (PDF or Image)</label>
-                        <?php if (!empty($user['certification_file'])): ?>
-                            <div style="margin-bottom: 10px; font-size: 0.9rem;">
-                                Current File: <a href="uploads/certs/<?php echo $user['certification_file']; ?>" target="_blank" style="color: #2563eb;">View Certification</a>
-                            </div>
-                        <?php endif; ?>
-                        <input type="file" name="certification" accept=".pdf,.jpg,.jpeg,.png">
-                    </div>
-
-                    <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
-                            <label>LinkedIn Profile URL</label>
-                            <div style="position: relative;">
-                                <i class="ph ph-linkedin-logo" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                                <input type="url" name="linkedin_url" value="<?php echo htmlspecialchars($user['linkedin_url'] ?? ''); ?>" placeholder="https://linkedin.com/in/yourprofile" style="padding-left: 35px;">
+                            <label>Profile Photo</label>
+                            <div class="photo-upload-area">
+                                <div class="current-photo" id="photoPreview">
+                                    <?php if (!empty($user['profile_photo'])): ?>
+                                        <img src="uploads/profiles/<?php echo $user['profile_photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <?php else: ?>
+                                        <i class="ph ph-user" style="font-size: 2.5rem; color: #94a3b8;"></i>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <div class="file-input-wrapper">
+                                        <button class="btn-upload" type="button">Choose New Photo</button>
+                                        <input type="file" name="profile_photo" accept="image/*" onchange="previewImage(this)">
+                                    </div>
+                                    <p style="margin: 5px 0 0; font-size: 0.8rem; color: #94a3b8;">JPG, PNG or GIF. Max size 2MB.</p>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Your Name</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-user"></i>
+                                    <input type="text" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-phone"></i>
+                                    <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label>Professional Website URL</label>
-                            <div style="position: relative;">
-                                <i class="ph ph-globe" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                                <input type="url" name="website_url" value="<?php echo htmlspecialchars($user['website_url'] ?? ''); ?>" placeholder="https://yourwebsite.com" style="padding-left: 35px;">
+                            <label>Bio / About You</label>
+                            <textarea name="bio" rows="4" placeholder="Tell us a bit about yourself..."><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                        </div>
+                    </div>
+
+                    <?php if ($role == 'buyer'): ?>
+                        <!-- BUYER SPECIFIC SETTINGS -->
+                        <div class="form-section">
+                            <h3 class="section-title"><i class="ph ph-bell-ringing"></i> Notifications</h3>
+                            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 500; margin-bottom: 15px;">
+                                    <input type="checkbox" name="email_notifications" value="1" <?php if($user['email_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px; accent-color: #2563eb;">
+                                    Email Notifications
+                                </label>
+                                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; font-weight: 500; margin-bottom: 0;">
+                                    <input type="checkbox" name="sms_notifications" value="1" <?php if($user['sms_notifications']) echo 'checked'; ?> style="width: 18px; height: 18px; accent-color: #2563eb;">
+                                    SMS Notifications
+                                </label>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Experience (Years)</label>
-                        <div style="position: relative;">
-                            <i class="ph ph-briefcase" style="position: absolute; left: 10px; top: 12px; color: #94a3b8;"></i>
-                            <input type="number" name="experience" value="<?php echo htmlspecialchars($user['experience'] ?? 0); ?>" required style="padding-left: 35px;">
+                        <div class="form-section">
+                            <h3 class="section-title"><i class="ph ph-shield-check"></i> Security</h3>
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-lock-key"></i>
+                                    <input type="password" name="current_password" placeholder="••••••••">
+                                </div>
+                            </div>
+                            <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                                <div class="form-group">
+                                    <label>New Password</label>
+                                    <div class="input-wrapper">
+                                        <i class="ph ph-lock-key"></i>
+                                        <input type="password" name="new_password" placeholder="New Password">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Confirm New Password</label>
+                                    <div class="input-wrapper">
+                                        <i class="ph ph-lock-key"></i>
+                                        <input type="password" name="confirm_password" placeholder="Confirm Password">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                <?php endif; ?>
 
-                <button type="submit" class="btn btn-primary">Save Profile</button>
-            </form>
+                        <div class="danger-zone">
+                            <h4><i class="ph-fill ph-warning-circle"></i> Danger Zone</h4>
+                            <p style="font-size: 0.9rem; color: #7f1d1d; margin-bottom: 15px;">Deleting your account is permanent. All your data will be wiped.</p>
+                            <button type="button" onclick="confirmDelete()" class="btn-delete">Delete Account Permanently</button>
+                        </div>
+
+                        <script>
+                        function confirmDelete() {
+                            if (confirm('WARNING: Are you sure you want to permanently delete your account?')) {
+                                const form = document.createElement('form');
+                                form.method = 'POST';
+                                form.innerHTML = '<input type="hidden" name="action" value="delete_account">';
+                                document.body.appendChild(form);
+                                form.submit();
+                            }
+                        }
+                        </script>
+                    <?php endif; ?>
+
+                    <?php if ($role == 'expert'): ?>
+                        <!-- EXPERT SPECIFIC SETTINGS -->
+                        <div class="form-section">
+                            <h3 class="section-title"><i class="ph ph-briefcase"></i> Professional Details</h3>
+                            
+                            <div class="form-group">
+                                <label>Vehicle Specializations</label>
+                                <small style="color: #64748b; margin-bottom: 8px; display: block;">Search and add vehicles you inspect (Category, Brand, or Model).</small>
+                                <div style="position: relative;">
+                                     <div class="tag-container" id="tagContainer">
+                                         <i class="ph ph-magnifying-glass" style="color: #94a3b8; font-size: 1.1rem; margin-left: 5px;"></i>
+                                         <input type="text" class="tag-input" id="specSearch" placeholder="Type to search (e.g. 'Toyota', 'Bike')..." autocomplete="off">
+                                     </div>
+                                     <div class="suggestions-list" id="suggestions"></div>
+                                </div>
+                                <!-- Hidden inputs generated by JS -->
+                                <div id="hiddenInputs"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Inspection Packages / Pricing</label>
+                                <small style="color: #64748b; margin-bottom: 15px; display: block;">Add different service tiers (e.g. Basic, Standard, Full). Buyers will choose one during booking.</small>
+                                <div id="packages-container" style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                                    <!-- JS will populate existing packages -->
+                                </div>
+                                <button type="button" class="btn" style="background: white; border: 1px dashed #cbd5e1; color: #475569; padding: 10px; width: 100%; border-radius: 8px; margin-top: 10px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: background 0.2s;" onclick="addPackageRow()">
+                                    <i class="ph ph-plus"></i> Add Package
+                                </button>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 25px;">
+                                <label>Qualifications</label>
+                                <textarea name="qualification" rows="3"><?php echo htmlspecialchars($user['qualification'] ?? ''); ?></textarea>
+                            </div>
+                            
+                            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label>Experience (Years)</label>
+                                    <div class="input-wrapper">
+                                        <i class="ph ph-briefcase"></i>
+                                        <input type="number" name="experience" value="<?php echo htmlspecialchars($user['experience'] ?? 0); ?>" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Certification Upload</label>
+                                    <div class="file-input-wrapper" style="width: 100%;">
+                                        <button class="btn-upload" type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>Upload PDF/Image</span>
+                                            <i class="ph ph-upload-simple"></i>
+                                        </button>
+                                        <input type="file" name="certification" accept=".pdf,.jpg,.jpeg,.png">
+                                    </div>
+                                    <?php if (!empty($user['certification_file'])): ?>
+                                        <small style="display: block; margin-top: 5px;">
+                                            Current: <a href="uploads/certs/<?php echo $user['certification_file']; ?>" target="_blank" style="color: #2563eb;">View File</a>
+                                        </small>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="section-title"><i class="ph ph-map-pin"></i> Service Area</h3>
+                            
+                            <div class="form-group">
+                                <label>Location</label>
+                                <div style="position: relative; z-index: 1001;">
+                                    <div class="input-wrapper">
+                                        <i class="ph ph-map-pin"></i>
+                                        <input type="text" name="district" id="district-input" value="<?php echo htmlspecialchars($user['district'] ?? ''); ?>" required placeholder="Search your city (e.g. Badulla)" autocomplete="off">
+                                    </div>
+                                    <div id="location-suggestions"></div>
+                                </div>
+                                <div id="location-error" class="alert-error" style="display:none; padding: 10px; font-size: 0.9rem; margin-top: 10px;"></div>
+
+                                <!-- Map -->
+                                <div id="map"></div>
+                                <small style="color: #64748b; margin-top: 8px; display: block; text-align: center;">Drag the marker to pinpoint your exact location.</small>
+                                <input type="hidden" name="latitude" id="lat" value="<?php echo $user['latitude'] ?? ''; ?>">
+                                <input type="hidden" name="longitude" id="lng" value="<?php echo $user['longitude'] ?? ''; ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="section-title"><i class="ph ph-link"></i> Social Links</h3>
+                            <div class="mobile-stack" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label>LinkedIn Profile</label>
+                                    <div class="input-wrapper">
+                                        <i class="ph ph-linkedin-logo"></i>
+                                        <input type="url" name="linkedin_url" value="<?php echo htmlspecialchars($user['linkedin_url'] ?? ''); ?>" placeholder="https://linkedin.com/in/..." >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Website</label>
+                                    <div class="input-wrapper">
+                                        <i class="ph ph-globe"></i>
+                                        <input type="url" name="website_url" value="<?php echo htmlspecialchars($user['website_url'] ?? ''); ?>" placeholder="https://..." >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <div style="margin-top: 30px;">
+                        <button type="submit" class="btn-save">
+                            <i class="ph ph-check-circle"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -722,14 +1041,14 @@ if ($role == 'buyer') {
                 
                 locDebounce = setTimeout(() => {
                     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + " Badulla")}&countrycodes=lk&limit=5&addressdetails=1`)
-                        .then(res => res.json())
-                        .then(data => {
-                            const uniqueApiMatches = data.filter(apiItem => {
-                                let name = apiItem.address.village || apiItem.address.town || apiItem.display_name.split(',')[0];
-                                return !localMatches.some(local => local.toLowerCase() === name.toLowerCase());
-                            });
-                            renderLocationSuggestions(localMatches, uniqueApiMatches);
+                    .then(res => res.json())
+                    .then(data => {
+                        const uniqueApiMatches = data.filter(apiItem => {
+                            let name = apiItem.address.village || apiItem.address.town || apiItem.display_name.split(',')[0];
+                            return !localMatches.some(local => local.toLowerCase() === name.toLowerCase());
                         });
+                        renderLocationSuggestions(localMatches, uniqueApiMatches);
+                    });
                 }, 500);
             });
 
@@ -805,9 +1124,9 @@ if ($role == 'buyer') {
                 row.style.gap = '10px';
                 row.style.marginBottom = '10px';
                 row.innerHTML = `
-                    <input type="text" name="package_names[]" value="${name}" placeholder="Package Name (e.g. Basic)" required style="flex: 2;">
-                    <input type="number" name="package_prices[]" value="${price}" placeholder="Price (LKR)" required style="flex: 1;">
-                    <button type="button" class="btn" style="background:#fee2e2; color:#b91c1c; padding: 5px 10px;" onclick="this.parentElement.remove()">&times;</button>
+                    <input type="text" name="package_names[]" value="${name}" placeholder="Package Name (e.g. Basic)" required style="flex: 2; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                    <input type="number" name="package_prices[]" value="${price}" placeholder="Price (LKR)" required style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                    <button type="button" class="btn" style="background:#fee2e2; color:#b91c1c; padding: 5px 12px; border:none; border-radius:8px; cursor:pointer;" onclick="this.parentElement.remove()"><i class="ph-fill ph-trash"></i></button>
                 `;
                 packagesContainer.appendChild(row);
             }
@@ -833,4 +1152,5 @@ if ($role == 'buyer') {
 
         <?php endif; ?>
     </script>
-
+</body>
+</html>

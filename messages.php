@@ -160,32 +160,91 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages | AutoChek</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        .messages-container {
+        body {
+            background: #f8fafc;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent body scroll, handle in chat container */
+        }
+
+        .main-content-wrapper {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .messages-layout {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 320px 1fr;
             gap: 20px;
-            height: calc(100vh - 200px);
-            margin-top: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+            flex: 1;
+            overflow: hidden;
+            height: calc(100vh - 140px); /* Adjust based on header + padding */
         }
         
-        .conversations-list {
-            background: white;
-            border-radius: 12px;
+        /* Sidebar */
+        .conversations-sidebar {
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .sidebar-header {
             padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .conversations-list {
+            flex: 1;
             overflow-y: auto;
-            border: 1px solid #f1f5f9;
+            padding: 10px;
         }
         
         .conversation-item {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 4px;
             cursor: pointer;
-            transition: background 0.2s;
-            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
         }
         
         .conversation-item:hover {
@@ -194,47 +253,100 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
         
         .conversation-item.active {
             background: #eff6ff;
-            border-color: #2563eb;
+            /* border-left: 3px solid #2563eb; */
+        }
+        
+        .user-avatar-small {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #64748b;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
         }
         
         .conversation-name {
             font-weight: 600;
-            margin-bottom: 5px;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .last-active {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .conversation-role {
+            font-size: 0.75rem;
+            color: #64748b;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .conversation-role {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-        
         .unread-badge {
             background: #ef4444;
             color: white;
-            border-radius: 12px;
+            border-radius: 999px;
             padding: 2px 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.7rem;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
         }
         
-        .chat-container {
-            background: white;
-            border-radius: 12px;
+        /* Chat Area */
+        .chat-area {
             display: flex;
             flex-direction: column;
-            border: 1px solid #f1f5f9;
+            background: #fff;
         }
         
         .chat-header {
-            padding: 20px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
         
-        .chat-header h3 {
+        .chat-user-info h3 {
             margin: 0;
-            font-size: 1.2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .chat-user-role {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
         
         .chat-messages {
@@ -243,159 +355,238 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
+            background: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
         }
         
-        .message-bubble {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            word-wrap: break-word;
+        .message-wrapper {
+            max-width: 65%;
+            display: flex;
+            flex-direction: column;
         }
         
         .message-sent {
             align-self: flex-end;
-            background: #2563eb;
-            color: white;
+            align-items: flex-end;
         }
         
         .message-received {
             align-self: flex-start;
-            background: #f1f5f9;
-            color: #1e293b;
+            align-items: flex-start;
+        }
+        
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .message-sent .message-bubble {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 12px 12px 0 12px;
+        }
+        
+        .message-received .message-bubble {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px 12px 12px 0;
         }
         
         .message-time {
             font-size: 0.7rem;
-            opacity: 0.7;
-            margin-top: 5px;
+            color: #94a3b8;
+            margin-top: 4px;
+            padding: 0 4px;
         }
         
         .chat-input-area {
             padding: 20px;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            background: white;
         }
         
         .chat-input-form {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            align-items: flex-end;
+            background: #f1f5f9;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chat-input-form:focus-within {
+            background: white;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
         .chat-input-form textarea {
             flex: 1;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            padding: 8px 10px;
+            border: none;
+            background: transparent;
             resize: none;
             font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            max-height: 100px;
+            outline: none;
         }
         
-        .chat-input-form button {
-            padding: 12px 24px;
+        .btn-send {
+            background: #2563eb;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .btn-send:hover {
+            background: #1d4ed8;
+            transform: scale(1.05);
         }
         
         .empty-state {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
             color: #94a3b8;
-            font-size: 1.1rem;
+            text-align: center;
+            padding: 20px;
         }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--text-dark);
+            margin: 0 0 8px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .page-title { display: none; }
+            .main-content-wrapper { padding: 0; height: calc(100vh - 60px); }
+            .messages-layout { border-radius: 0; border: none; height: 100%; }
+            
+            .messages-layout.chat-active .conversations-sidebar {
+                display: none;
+            }
+            
+            .messages-layout:not(.chat-active) .chat-area {
+                display: none;
+            }
+            
+            .messages-layout.chat-active {
+                grid-template-columns: 1fr;
+            }
+            
+            .conversations-sidebar { width: 100%; }
+            
+            .back-btn {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: #f1f5f9;
+                color: #64748b;
+                text-decoration: none;
+                margin-right: 10px;
+            }
+        }
+        
+        .back-btn { display: none; }
     </style>
 </head>
 <body>
 
     <?php include 'header.php'; ?>
     
-    <style>
-        @media (max-width: 768px) {
-            .messages-container {
-                display: flex !important;
-                flex-direction: column !important;
-                height: auto !important;
-            }
-            .conversations-list {
-                <?php if ($active_chat): ?>display: none;<?php endif; ?>
-                width: 100%;
-            }
-            .chat-container {
-                <?php if (!$active_chat): ?>display: none;<?php endif; ?>
-                width: 100%;
-                height: 70vh;
-            }
-            .chat-header {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            .back-btn {
-                display: inline-flex !important;
-                align-items: center;
-                padding: 8px;
-                background: #f1f5f9;
-                border-radius: 50%;
-                color: #64748b;
-                text-decoration: none;
-            }
-        }
-        .back-btn { display: none; }
-    </style>
-
-    <div class="container">
-        <h2>Messages</h2>
+    <div class="main-content-wrapper">
+        <h2 class="page-title"><i class="ph ph-chat-circle-text"></i> Messages</h2>
         
-        <div class="messages-container">
-            <!-- Conversations List -->
-            <div class="conversations-list">
-                <h3 class="section-title">Conversations</h3>
-                <?php if (count($conversations) > 0): ?>
-                    <?php foreach ($conversations as $conv): ?>
-                        <a href="messages.php?chat_role=<?php echo $conv['role']; ?>&chat_id=<?php echo $conv['id']; ?>" 
-                           class="conversation-item <?php echo ($active_chat && $active_chat['role'] == $conv['role'] && $active_chat['id'] == $conv['id']) ? 'active' : ''; ?>"
-                           style="text-decoration: none; color: inherit; display: block;">
-                            <div style="display: flex; gap: 12px; align-items: center;">
-                                <div class="avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+        <div class="messages-layout <?php echo $active_chat ? 'chat-active' : ''; ?>">
+            
+            <!-- Sidebar -->
+            <div class="conversations-sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Conversations</div>
+                </div>
+                
+                <div class="conversations-list">
+                    <?php if (count($conversations) > 0): ?>
+                        <?php foreach ($conversations as $conv): ?>
+                            <?php 
+                                $isActive = ($active_chat && $active_chat['role'] == $conv['role'] && $active_chat['id'] == $conv['id']);
+                            ?>
+                            <a href="messages.php?chat_role=<?php echo $conv['role']; ?>&chat_id=<?php echo $conv['id']; ?>" class="conversation-item <?php echo $isActive ? 'active' : ''; ?>">
+                                <div class="user-avatar-small">
                                     <?php if (!empty($conv['photo'])): ?>
                                         <img src="uploads/profiles/<?php echo $conv['photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                                     <?php else: ?>
-                                        👤
+                                        <i class="ph ph-user"></i>
                                     <?php endif; ?>
                                 </div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <div class="conversation-name">
-                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($conv['name']); ?></span>
+                                <div class="conversation-info">
+                                    <div class="conversation-top">
+                                        <div class="conversation-name"><?php echo htmlspecialchars($conv['name']); ?></div>
+                                        <span class="last-active"><?php echo date('M j', strtotime($conv['last_time'])); ?></span>
+                                    </div>
+                                    <div class="conversation-role">
+                                        <?php echo ucfirst($conv['role']); ?>
                                         <?php if ($conv['unread'] > 0): ?>
                                             <span class="unread-badge"><?php echo $conv['unread']; ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="conversation-role">
-                                        <?php echo ucfirst($conv['role']); ?>
-                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p style="color: #94a3b8; text-align: center; margin-top: 20px;">No conversations yet.</p>
-                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+                            <i class="ph ph-chats-circle" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            <p style="font-size: 0.9rem;">No conversations yet.<br>Book an expert to start chatting!</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
             
             <!-- Chat Area -->
-            <div class="chat-container">
+            <div class="chat-area">
                 <?php if ($active_chat): ?>
-                    <div class="chat-header" style="display: flex; align-items: center; gap: 15px;">
+                    <div class="chat-header">
                         <a href="messages.php" class="back-btn"><i class="ph ph-arrow-left"></i></a>
-                        <div class="avatar" style="width: 45px; height: 45px; border-radius: 50%; background: #f1f5f9; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <div class="user-avatar-small" style="width: 40px; height: 40px;">
                             <?php if (!empty($active_chat['photo'])): ?>
                                 <img src="uploads/profiles/<?php echo $active_chat['photo']; ?>" style="width: 100%; height: 100%; object-fit: cover;">
                             <?php else: ?>
-                                👤
+                                <i class="ph ph-user"></i>
                             <?php endif; ?>
                         </div>
-                        <div>
-                            <h3 style="margin: 0; line-height: 1.2;"><?php echo htmlspecialchars($chat_user_name); ?></h3>
-                            <small style="color: #64748b;"><?php echo ucfirst($active_chat['role']); ?></small>
+                        <div class="chat-user-info">
+                            <h3><?php echo htmlspecialchars($chat_user_name); ?></h3>
+                            <div class="chat-user-role"><?php echo ucfirst($active_chat['role']); ?></div>
                         </div>
                     </div>
                     
@@ -405,15 +596,23 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
                                 <?php 
                                 $is_sent = ($msg['sender_role'] == $role && $msg['sender_id'] == $user_id);
                                 ?>
-                                <div class="message-bubble <?php echo $is_sent ? 'message-sent' : 'message-received'; ?>">
-                                    <div><?php echo nl2br(htmlspecialchars($msg['message_body'])); ?></div>
+                                <div class="message-wrapper <?php echo $is_sent ? 'message-sent' : 'message-received'; ?>">
+                                    <div class="message-bubble">
+                                        <?php echo nl2br(htmlspecialchars($msg['message_body'])); ?>
+                                    </div>
                                     <div class="message-time">
-                                        <?php echo date('M j, g:i A', strtotime($msg['created_at'])); ?>
+                                        <?php echo date('g:i A', strtotime($msg['created_at'])); ?>
+                                        <?php if ($is_sent): ?>
+                                            <i class="ph-fill ph-check-circle" style="font-size: 0.8rem; margin-left: 2px;"></i>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endwhile; ?>
                         <?php else: ?>
-                            <div class="empty-state">Start the conversation!</div>
+                            <div class="empty-state">
+                                <i class="ph ph-hand-waving" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 10px;"></i>
+                                <p>Say hello to <strong><?php echo htmlspecialchars($chat_user_name); ?></strong>! 👋</p>
+                            </div>
                         <?php endif; ?>
                     </div>
                     
@@ -421,13 +620,17 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
                         <form method="POST" class="chat-input-form">
                             <input type="hidden" name="receiver_role" value="<?php echo $active_chat['role']; ?>">
                             <input type="hidden" name="receiver_id" value="<?php echo $active_chat['id']; ?>">
-                            <textarea name="message_body" rows="2" placeholder="Type your message..." required></textarea>
-                            <button type="submit" name="send_message" class="btn btn-primary">Send</button>
+                            <textarea name="message_body" rows="1" placeholder="Type your message..." required style="height: auto;" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                            <button type="submit" name="send_message" class="btn-send">
+                                <i class="ph-fill ph-paper-plane-right"></i>
+                            </button>
                         </form>
                     </div>
                 <?php else: ?>
                     <div class="empty-state">
-                        Select a conversation to start messaging
+                        <i class="ph ph-chat-centered-text"></i>
+                        <h3>Select a Conversation</h3>
+                        <p>Choose a contact from the left sidebar to start messaging.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -435,7 +638,7 @@ if (isset($_GET['chat_role']) && isset($_GET['chat_id'])) {
     </div>
     
     <script>
-        // Auto-scroll to bottom of messages
+        // Auto-scroll to bottom
         const chatMessages = document.getElementById('chatMessages');
         if (chatMessages) {
             chatMessages.scrollTop = chatMessages.scrollHeight;
