@@ -94,7 +94,7 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
             color: var(--text-dark);
             text-align: center;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: -60px;
         }
 
@@ -247,9 +247,34 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
             display: none;
             max-height: 400px;
             overflow-y: auto;
+            overflow-x: hidden;
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
             border: 1px solid #e2e8f0;
             animation: slideUpFade 0.3s ease;
+            /* Smooth scrolling */
+            scroll-behavior: smooth;
+            /* Better scrollbar styling for Windows */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        /* Webkit scrollbar styling */
+        .search-suggestions-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .search-suggestions-box::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 0 16px 16px 0;
+        }
+
+        .search-suggestions-box::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .search-suggestions-box::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         @keyframes slideUpFade {
