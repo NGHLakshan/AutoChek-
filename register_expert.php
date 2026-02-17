@@ -141,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <div class="form-container">
             <h2 style="margin-top:0;">Expert Registration</h2>
-            <p>Join Badulla's #1 network of vehicle inspectors.</p>
+            <p>Join Badulla's one network of vehicle inspectors.</p>
             
             <?php echo $message; ?>
 

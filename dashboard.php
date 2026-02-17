@@ -811,7 +811,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     $color = $status_colors[$row['status']] ?? '#64748b';
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td data-label="ID" style="padding: 12px; font-weight: 600;">#<?php echo $row['booking_id']; ?></td>
+                                        <td data-label="ID" style="padding: 12px; font-weight: 600;"><?php echo $row['booking_id']; ?></td>
                                         <td data-label="Buyer" style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
                                         <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
                                         <td data-label="Vehicle" style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
@@ -1021,7 +1021,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                     $color = $status_colors[$row['status']] ?? '#64748b';
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;" data-status="<?php echo $row['status']; ?>">
-                                        <td data-label="ID" style="padding: 12px; font-weight: 600;">#<?php echo $row['booking_id']; ?></td>
+                                        <td data-label="ID" style="padding: 12px; font-weight: 600;"><?php echo $row['booking_id']; ?></td>
                                         <td data-label="Buyer" style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
                                         <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
                                         <td data-label="Vehicle" style="padding: 12px; font-size: 0.9rem;"><?php echo htmlspecialchars($row['vehicle_type']); ?></td>
@@ -1108,8 +1108,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_availability' && $role 
                                 while($row = $result->fetch_assoc()) {
                                     ?>
                                     <tr style="border-bottom: 1px solid #f1f5f9;">
-                                        <td data-label="Payment ID" style="padding: 12px; font-weight: 600;">#<?php echo $row['payment_id']; ?></td>
-                                        <td data-label="Booking ID" style="padding: 12px; color: #2563eb;">#<?php echo $row['booking_id']; ?></td>
+                                        <td data-label="Payment ID" style="padding: 12px; font-weight: 600;"><?php echo $row['payment_id']; ?></td>
+                                        <td data-label="Booking ID" style="padding: 12px; color: #2563eb;"><?php echo $row['booking_id']; ?></td>
                                         <td data-label="Buyer" style="padding: 12px;"><?php echo htmlspecialchars($row['buyer_name']); ?></td>
                                         <td data-label="Expert" style="padding: 12px;"><?php echo htmlspecialchars($row['expert_name']); ?></td>
                                         <td data-label="Amount" style="padding: 12px; font-weight: 600; color: #10b981;">LKR <?php echo number_format($row['amount'], 2); ?></td>
