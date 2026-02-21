@@ -314,15 +314,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label>Select Inspection Package</label>
                     <div class="input-wrapper">
                         <i class="ph ph-package ph-main"></i>
-                        <select name="package_info" required style="padding-left: 48px !important;">
+                        <select name="package_info" required style="padding-left: 48px !important;" id="package-select">
                             <?php if (!empty($expert_packages)): ?>
+                                <option value="" disabled selected>Choose an inspection package...</option>
                                 <?php foreach ($expert_packages as $p): ?>
                                     <option value="<?php echo htmlspecialchars($p['name'] . '|' . $p['price']); ?>">
                                         <?php echo htmlspecialchars($p['name']); ?> - LKR <?php echo number_format($p['price'], 2); ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <option value="Standard|5000">Standard Inspection - LKR 5,000.00</option>
+                                <option value="" disabled selected>No packages available for this expert</option>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -340,7 +341,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit">Send Request</button>
+                <button type="submit" class="btn-submit" <?php echo empty($expert_packages) ? 'disabled style="background: #94a3b8; cursor: not-allowed;"' : ''; ?>>
+                    <?php echo empty($expert_packages) ? 'No Packages Available' : 'Send Request'; ?>
+                </button>
+                <?php if (empty($expert_packages)): ?>
+                    <p style="color: #ef4444; font-size: 0.85rem; text-align: center; margin-top: 10px;">
+                        <i class="ph ph-warning"></i> This expert hasn't listed any packages yet.
+                    </p>
+                <?php endif; ?>
             </form>
         </div>
 
@@ -480,6 +488,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             });
         };
     </script>
-    <?php include 'footer.php'; ?>
 </body>
 </html>

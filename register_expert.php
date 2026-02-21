@@ -32,9 +32,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
+    // Handle Packages (JSON)
+    $packages_json = null;
+    if (isset($_POST['package_names']) && isset($_POST['package_prices'])) {
+        $p_names = $_POST['package_names'];
+        $p_prices = $_POST['package_prices'];
+        $packages = [];
+        for ($i = 0; $i < count($p_names); $i++) {
+            if (!empty(trim($p_names[$i]))) {
+                $packages[] = [
+                    'name' => trim($p_names[$i]),
+                    'price' => floatval($p_prices[$i])
+                ];
+            }
+        }
+        $packages_json = json_encode($packages);
+    }
+
     // Insert Expert (Pending Verification)
-    $stmt = $conn->prepare("INSERT INTO expert (name, email, phone, district, qualification, experience, password, latitude, longitude, certification_file, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
-    $stmt->bind_param("sssssisdds", $name, $email, $phone, $district, $qualification, $experience, $password, $latitude, $longitude, $cert_filename);
+    $stmt = $conn->prepare("INSERT INTO expert (name, email, phone, district, qualification, experience, password, latitude, longitude, certification_file, packages, verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
+    $stmt->bind_param("sssssisddss", $name, $email, $phone, $district, $qualification, $experience, $password, $latitude, $longitude, $cert_filename, $packages_json);
     
     if ($stmt->execute()) {
         $new_expert_id = $conn->insert_id;
@@ -227,6 +244,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-group">
                     <label>Experience (Years)</label>
                     <input type="number" name="experience" min="0" required placeholder="Ex. 5">
+                </div>
+
+                <div class="form-group">
+                    <label>Inspection Packages / Pricing</label>
+                    <small style="color: #64748b; margin-bottom: 10px; display: block;">Add at least one inspection package that buyers can choose.</small>
+                    <div id="packages-container" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <!-- JS will populate empty row -->
+                    </div>
+                    <button type="button" class="btn" style="background: white; border: 1px dashed #cbd5e1; color: #475569; padding: 10px; width: 100%; border-radius: 8px; margin-top: 10px; cursor: pointer; font-weight: 500; font-size: 0.9rem; transition: background 0.2s;" onclick="addPackageRow()">
+                        <i class="ph ph-plus"></i> Add Package
+                    </button>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Create Expert Account</button>
@@ -585,6 +613,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 locSuggestions.style.display = 'none';
             }
         });
+        // --- Packages Logic ---
+        const packagesContainer = document.getElementById('packages-container');
+
+        function addPackageRow(name = '', price = '') {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.gap = '10px';
+            row.style.marginBottom = '10px';
+            row.innerHTML = `
+                <input type="text" name="package_names[]" value="${name}" placeholder="Package Name (e.g. Basic)" required style="flex: 2; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                <input type="number" name="package_prices[]" value="${price}" placeholder="Price (LKR)" required style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                <button type="button" class="btn" style="background:#fee2e2; color:#b91c1c; padding: 5px 12px; border:none; border-radius:8px; cursor:pointer;" onclick="if(packagesContainer.children.length > 1) this.parentElement.remove(); else alert('At least one package is required.');"><i class="ph-fill ph-trash"></i></button>
+            `;
+            packagesContainer.appendChild(row);
+        }
+
+        // Add initial row
+        addPackageRow();
     </script>
 
     <?php include 'footer.php'; ?>

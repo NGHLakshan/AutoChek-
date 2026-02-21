@@ -1221,6 +1221,5 @@ if (!empty($location_text) && $location_text !== "Current Location" && ($lat == 
 
         };
     </script>
-    <?php include 'footer.php'; ?>
 </body>
 </html>
